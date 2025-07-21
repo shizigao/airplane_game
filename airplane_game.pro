@@ -5,6 +5,7 @@
 #-------------------------------------------------
 
 QT       += core gui
+QT += multimedia
 CONFIG += resources_big
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
@@ -49,3 +50,5 @@ FORMS += \
 
 RESOURCES += \
     res.qrc
+
+

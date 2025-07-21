@@ -6,6 +6,8 @@ class HeroBullet: public Bullet
 {
 public:
     HeroBullet();
+    HeroBullet(int x, int y, QPixmap pixmap);
+
 };
 
 #endif // HEROBULLET_H

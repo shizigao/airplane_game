@@ -13,6 +13,7 @@ Widget::Widget(QWidget *parent) :
     main_view.setParent(this);
     main_view.centerOn(384, 576);//将视图对准
     main_view.setSceneRect(0, 0, 768, 1152);
+
     // 禁用水平和垂直滚动条
     main_view.setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     main_view.setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -33,19 +34,86 @@ Widget::~Widget()
     delete ui;
 }
 
+//加载资源的总函数
 void Widget::load_resources()
 {
     load_timer();
+    load_heroplane();
+    load_sound();
+    load_object_pool();
     load_startgame();
     load_menu();
     load_levels();
-    load_heroplane();//加载英雄机
+    load_pause();
 }
 
 void Widget::load_timer()
 {
     game_timer = new QTimer(this);
     game_timer->start(GAME_PERIOD);
+}
+
+void Widget::load_sound()
+{
+    backgroundMusic = new QMediaPlayer(this);
+
+    // 设置音乐文件路径（支持本地文件和网络地址）
+    backgroundMusic->setMedia(QUrl("qrc:/bg.wav"));
+
+    // 设置音量（0-100）
+    backgroundMusic->setVolume(10);
+    // 设置循环播放
+    connect(backgroundMusic, &QMediaPlayer::stateChanged, [=](QMediaPlayer::State state) {
+            if (state == QMediaPlayer::StoppedState) {
+                backgroundMusic->play(); // 播放结束后重新开始
+            }
+        });
+    // 开始播放
+    backgroundMusic->play();
+}
+
+//加载对象池
+void Widget::load_object_pool()
+{
+    //预先创建一定数量的对象
+    //创建10个敌机
+    for (int i = 0; i < 10; i++){
+        EnemyPlane* enemyplane = new EnemyPlane(0, 0, QPixmap(ENEMYPLANE_PICTURE1));
+        enemyplane->status = 1;
+        enemyplane_pool.append(enemyplane);
+        enemyplane_queue.append(enemyplane);
+    }
+    //创建10颗我方子弹
+    for (int i = 0; i < 10; i++){
+        HeroBullet* herobullet = new HeroBullet(0, 0, QPixmap(HEROBULLET_PICTURE1));
+        herobullet->status = 1;
+        herobullet_pool.append(herobullet);
+        herobullet_queue.append(herobullet);
+    }
+    //创建10颗敌方子弹
+    for (int i = 0; i < 10; i++){
+        EnemyBullet* enemybullet = new EnemyBullet(0, 0, QPixmap(ENEMYBULLET_PICTURE1));
+        enemybullet->status = 1;
+        enemybullet_pool.append(enemybullet);
+        enemybullet_queue.append(enemybullet);
+    }
+}
+
+void Widget::load_pause()
+{
+    pause_background = new QGraphicsRectItem();
+    pause_background->setRect(0, 0, VIEW_WIDTH, VIEW_HEIGHT);
+    pause_background->setBrush(QColor(0, 0, 0, 128)); // 黑色半透明（alpha=128，0-255）
+    pause_background->setZValue(90); // 层级设为次顶层（高于游戏元素）
+    pause_background->setVisible(false); // 默认隐藏
+    level_scene.addItem(pause_background);
+    pause_picture = new QGraphicsPixmapItem();
+    pause_picture->setPixmap(QPixmap(PAUSE_PICTURE));
+    pause_picture->setScale(1);
+    pause_picture->setPos(VIEW_WIDTH / 2 - pause_picture->pixmap().width() / 2, VIEW_HEIGHT / 2 - pause_picture->pixmap().height() / 2);
+    pause_picture->setZValue(91); //层级设置比pause_background要高
+    pause_picture->setVisible(false);
+    level_scene.addItem(pause_picture);
 }
 
 //加载开始界面
@@ -166,23 +234,28 @@ void Widget::load_levels()
     level_5_background2->setScale(1.6);
     level_5_background2->setPos(0, -1229);
 
-    level_1_scene.addItem(level_1_background1);
-    level_1_scene.addItem(level_1_background2);
-    level_2_scene.addItem(level_2_background1);
-    level_2_scene.addItem(level_2_background2);
-    level_3_scene.addItem(level_3_background1);
-    level_3_scene.addItem(level_3_background2);
-    level_4_scene.addItem(level_4_background1);
-    level_4_scene.addItem(level_4_background2);
-    level_5_scene.addItem(level_5_background1);
-    level_5_scene.addItem(level_5_background2);
+    level_scene.addItem(level_1_background1);
+    level_scene.addItem(level_1_background2);
+    level_1_background1->setVisible(false);//先设置不可见，等对应关卡再设置可见
+    level_scene.addItem(level_2_background1);
+    level_scene.addItem(level_2_background2);
+    level_2_background1->setVisible(false);
+    level_scene.addItem(level_3_background1);
+    level_scene.addItem(level_3_background2);
+    level_3_background1->setVisible(false);
+    level_scene.addItem(level_4_background1);
+    level_scene.addItem(level_4_background2);
+    level_4_background1->setVisible(false);
+    level_scene.addItem(level_5_background1);
+    level_scene.addItem(level_5_background2);
+    level_5_background1->setVisible(false);
 
     
     //加载ui
     //关卡进度条
-    level_1_progressBar = new QProgressBar();
-    level_1_progressBar->setFixedSize(200, 20);
-    level_1_progressBar->setStyleSheet( "QProgressBar {"
+    level_progressBar = new QProgressBar();
+    level_progressBar->setFixedSize(200, 20);
+    level_progressBar->setStyleSheet( "QProgressBar {"
                                         "   text-align: center;"  // 文本位置
                                         "   color: #333;"         // 文本颜色
                                         "}"
@@ -192,83 +265,32 @@ void Widget::load_levels()
                                         "                               stop:1 #FF2626);"
                                         "}");
 
-    level_2_progressBar = new QProgressBar();
-    level_2_progressBar->setFixedSize(200, 20);
-    level_2_progressBar->setStyleSheet( "QProgressBar {"
-                                        "   text-align: center;"  // 文本位置
-                                        "   color: #333;"         // 文本颜色
-                                        "}"
-                                        "QProgressBar::chunk {"
-                                        "   background: qlineargradient(x1:0, y1:0, x2:1, y2:0, " //背景渐变色
-                                        "                               stop:0 #92FF77, "
-                                        "                               stop:1 #FF2626);"
-                                        "}");
 
-    level_3_progressBar = new QProgressBar();
-    level_3_progressBar->setFixedSize(200, 20);
-    level_3_progressBar->setStyleSheet( "QProgressBar {"
-                                        "   text-align: center;"  // 文本位置
-                                        "   color: #333;"         // 文本颜色
-                                        "}"
-                                        "QProgressBar::chunk {"
-                                        "   background: qlineargradient(x1:0, y1:0, x2:1, y2:0, " //背景渐变色
-                                        "                               stop:0 #92FF77, "
-                                        "                               stop:1 #FF2626);"
-                                        "}");
+    level_progressBar->setValue(100);
+    level_progressBar->setVisible(false);
+    level_scene.addWidget(level_progressBar);
 
-    level_4_progressBar = new QProgressBar();
-    level_4_progressBar->setFixedSize(200, 20);
-    level_4_progressBar->setStyleSheet( "QProgressBar {"
-                                        "   text-align: center;"  // 文本位置
-                                        "   color: #333;"         // 文本颜色
-                                        "}"
-                                        "QProgressBar::chunk {"
-                                        "   background: qlineargradient(x1:0, y1:0, x2:1, y2:0, " //背景渐变色
-                                        "                               stop:0 #92FF77, "
-                                        "                               stop:1 #FF2626);"
-                                        "}");
-
-    level_5_progressBar = new QProgressBar();
-    level_5_progressBar->setFixedSize(200, 20);
-    level_5_progressBar->setStyleSheet( "QProgressBar {"
-                                        "   text-align: center;"  // 文本位置
-                                        "   color: #333;"         // 文本颜色
-                                        "}"
-                                        "QProgressBar::chunk {"
-                                        "   background: qlineargradient(x1:0, y1:0, x2:1, y2:0, " //背景渐变色
-                                        "                               stop:0 #92FF77, "
-                                        "                               stop:1 #FF2626);"
-                                        "}");
-    level_1_progressBar->setValue(100);
-    level_1_scene.addWidget(level_1_progressBar);
-    level_2_progressBar->setValue(100);
-    level_2_scene.addWidget(level_2_progressBar);
-    level_3_progressBar->setValue(100);
-    level_3_scene.addWidget(level_3_progressBar);
-    level_4_progressBar->setValue(100);
-    level_4_scene.addWidget(level_4_progressBar);
-    level_5_progressBar->setValue(100);
-    level_5_scene.addWidget(level_5_progressBar);
 
     //加载生命条
-    level_1_healthBar = new QProgressBar();
-    level_1_healthBar->setFixedSize(60, 200);
-    level_1_healthBar->move(VIEW_WIDTH - 40, VIEW_HEIGHT - 200);
-    level_1_healthBar->setValue(100);
-    level_1_healthBar->setTextVisible(false);//生命值比率不可见，用生命值属性替代
-    level_1_healthBar->setStyleSheet("QProgressBar::chunk {"
+    player1_healthBar = new QProgressBar();
+    player1_healthBar->setFixedSize(60, 200);
+    player1_healthBar->move(VIEW_WIDTH - 40, VIEW_HEIGHT - 200);
+    player1_healthBar->setValue(100);
+    player1_healthBar->setTextVisible(false);//生命值比率不可见，用生命值属性替代
+    player1_healthBar->setStyleSheet("QProgressBar::chunk {"
                                      "   background: qlineargradient(x1:0, y1:0, x2:0, y2:1, "
                                      "                               stop:0 #92FF77, "
                                      "                               stop:1 #FF2626);"
                                      "}");
-    level_1_healthBar->setOrientation(Qt::Vertical);//设置生命条垂直
-    level_1_scene.addWidget(level_1_healthBar);
+    player1_healthBar->setOrientation(Qt::Vertical);//设置生命条垂直
+    player1_healthBar->setVisible(false);
+    level_scene.addWidget(player1_healthBar);
 
-    level_1_healthValue = new QLineEdit();
-    level_1_healthValue->setText("233");
-    level_1_healthValue->setReadOnly(true);
-    level_1_healthValue->move(VIEW_WIDTH - 40, VIEW_HEIGHT - 125);
-    level_1_healthValue->setStyleSheet(R"(
+    player1_healthValue = new QLineEdit();
+    player1_healthValue->setText("233");
+    player1_healthValue->setReadOnly(true);
+    player1_healthValue->move(VIEW_WIDTH - 40, VIEW_HEIGHT - 125);
+    player1_healthValue->setStyleSheet(R"(
                                        QLineEdit:read-only {
                                            font-family: "Arial Black";  /* 字体家族 */
                                            font-size: 20px;            /* 字体大小 */
@@ -278,157 +300,49 @@ void Widget::load_levels()
                                            color: #FF0B0B;   /* 文字颜色 */
                                        }
                                    )");
-    level_1_scene.addWidget(level_1_healthValue);
+    player1_healthValue->setVisible(false);
+    level_scene.addWidget(player1_healthValue);
 
-    level_2_healthBar = new QProgressBar();
-    level_2_healthBar->setFixedSize(60, 200);
-    level_2_healthBar->move(VIEW_WIDTH - 40, VIEW_HEIGHT - 200);
-    level_2_healthBar->setValue(100);
-    level_2_healthBar->setTextVisible(false);//生命值比率不可见，用生命值属性替代
-    level_2_healthBar->setStyleSheet("QProgressBar::chunk {"
-                                     "   background: qlineargradient(x1:0, y1:0, x2:0, y2:1, "
-                                     "                               stop:0 #92FF77, "
-                                     "                               stop:1 #FF2626);"
-                                     "}");
-    level_2_healthBar->setOrientation(Qt::Vertical);//设置生命条垂直
-    level_2_scene.addWidget(level_2_healthBar);
 
-    level_2_healthValue = new QLineEdit();
-    level_2_healthValue->setText("233");
-    level_2_healthValue->setReadOnly(true);
-    level_2_healthValue->move(VIEW_WIDTH - 40, VIEW_HEIGHT - 125);
-    level_2_healthValue->setStyleSheet(R"(
-                                       QLineEdit:read-only {
-                                           font-family: "Arial Black";  /* 字体家族 */
-                                           font-size: 20px;            /* 字体大小 */
-                                       font-weight: bold;
-                                           background-color: transparent;
-                                           border: none;  /* 可选：去掉边框 */
-                                           color: #FF0B0B;   /* 文字颜色 */
-                                       }
-                                   )");
-    level_2_scene.addWidget(level_2_healthValue);
-
-    level_3_healthBar = new QProgressBar();
-    level_3_healthBar->setFixedSize(60, 200);
-    level_3_healthBar->move(VIEW_WIDTH - 40, VIEW_HEIGHT - 200);
-    level_3_healthBar->setValue(100);
-    level_3_healthBar->setTextVisible(false);//生命值比率不可见，用生命值属性替代
-    level_3_healthBar->setStyleSheet("QProgressBar::chunk {"
-                                     "   background: qlineargradient(x1:0, y1:0, x2:0, y2:1, "
-                                     "                               stop:0 #92FF77, "
-                                     "                               stop:1 #FF2626);"
-                                     "}");
-    level_3_healthBar->setOrientation(Qt::Vertical);//设置生命条垂直
-    level_3_scene.addWidget(level_3_healthBar);
-
-    level_3_healthValue = new QLineEdit();
-    level_3_healthValue->setText("233");
-    level_3_healthValue->setReadOnly(true);
-    level_3_healthValue->move(VIEW_WIDTH - 40, VIEW_HEIGHT - 125);
-    level_3_healthValue->setStyleSheet(R"(
-                                       QLineEdit:read-only {
-                                           font-family: "Arial Black";  /* 字体家族 */
-                                           font-size: 20px;            /* 字体大小 */
-                                       font-weight: bold;
-                                           background-color: transparent;
-                                           border: none;  /* 可选：去掉边框 */
-                                           color: #FF0B0B;   /* 文字颜色 */
-                                       }
-                                   )");
-    level_3_scene.addWidget(level_3_healthValue);
-
-    level_4_healthBar = new QProgressBar();
-    level_4_healthBar->setFixedSize(60, 200);
-    level_4_healthBar->move(VIEW_WIDTH - 40, VIEW_HEIGHT - 200);
-    level_4_healthBar->setValue(100);
-    level_4_healthBar->setTextVisible(false);//生命值比率不可见，用生命值属性替代
-    level_4_healthBar->setStyleSheet("QProgressBar::chunk {"
-                                     "   background: qlineargradient(x1:0, y1:0, x2:0, y2:1, "
-                                     "                               stop:0 #92FF77, "
-                                     "                               stop:1 #FF2626);"
-                                     "}");
-    level_4_healthBar->setOrientation(Qt::Vertical);//设置生命条垂直
-    level_4_scene.addWidget(level_4_healthBar);
-
-    level_4_healthValue = new QLineEdit();
-    level_4_healthValue->setText("233");
-    level_4_healthValue->setReadOnly(true);
-    level_4_healthValue->move(VIEW_WIDTH - 40, VIEW_HEIGHT - 125);
-    level_4_healthValue->setStyleSheet(R"(
-                                       QLineEdit:read-only {
-                                           font-family: "Arial Black";  /* 字体家族 */
-                                           font-size: 20px;            /* 字体大小 */
-                                       font-weight: bold;
-                                           background-color: transparent;
-                                           border: none;  /* 可选：去掉边框 */
-                                           color: #FF0B0B;   /* 文字颜色 */
-                                       }
-                                   )");
-    level_4_scene.addWidget(level_4_healthValue);
-
-    level_5_healthBar = new QProgressBar();
-    level_5_healthBar->setFixedSize(60, 200);
-    level_5_healthBar->move(VIEW_WIDTH - 40, VIEW_HEIGHT - 200);
-    level_5_healthBar->setValue(100);
-    level_5_healthBar->setTextVisible(false);//生命值比率不可见，用生命值属性替代
-    level_5_healthBar->setStyleSheet("QProgressBar::chunk {"
-                                     "   background: qlineargradient(x1:0, y1:0, x2:0, y2:1, "
-                                     "                               stop:0 #92FF77, "
-                                     "                               stop:1 #FF2626);"
-                                     "}");
-    level_5_healthBar->setOrientation(Qt::Vertical);//设置生命条垂直
-    level_5_scene.addWidget(level_5_healthBar);
-
-    level_5_healthValue = new QLineEdit();
-    level_5_healthValue->setText("233");
-    level_5_healthValue->setReadOnly(true);
-    level_5_healthValue->move(VIEW_WIDTH - 40, VIEW_HEIGHT - 125);
-    level_5_healthValue->setStyleSheet(R"(
-                                       QLineEdit:read-only {
-                                           font-family: "Arial Black";  /* 字体家族 */
-                                           font-size: 20px;            /* 字体大小 */
-                                       font-weight: bold;
-                                           background-color: transparent;
-                                           border: none;  /* 可选：去掉边框 */
-                                           color: #FF0B0B;   /* 文字颜色 */
-                                       }
-                                   )");
-    level_5_scene.addWidget(level_5_healthValue);
 
     //加载武器背景
-    level_1_weapon1 = new QGraphicsPixmapItem();
-    level_1_weapon1->setPixmap(QPixmap(WEAPON_BACKGROUND));
-    level_1_weapon1->setScale(0.1);
-    level_1_weapon1->setPos(VIEW_WIDTH - 100, VIEW_HEIGHT - 190);
-    level_1_scene.addItem(level_1_weapon1);
+    player1_weapon1 = new QGraphicsPixmapItem();
+    player1_weapon1->setPixmap(QPixmap(WEAPON_BACKGROUND));
+    player1_weapon1->setScale(0.1);
+    player1_weapon1->setPos(VIEW_WIDTH - 100, VIEW_HEIGHT - 190);
+    player1_weapon1->setVisible(false);
+    level_scene.addItem(player1_weapon1);
 
-    level_1_weapon2 = new QGraphicsPixmapItem();
-    level_1_weapon2->setPixmap(QPixmap(WEAPON_BACKGROUND));
-    level_1_weapon2->setScale(0.1);
-    level_1_weapon2->setPos(VIEW_WIDTH - 100, VIEW_HEIGHT - 120);
-    level_1_scene.addItem(level_1_weapon2);
+    player1_weapon2 = new QGraphicsPixmapItem();
+    player1_weapon2->setPixmap(QPixmap(WEAPON_BACKGROUND));
+    player1_weapon2->setScale(0.1);
+    player1_weapon2->setPos(VIEW_WIDTH - 100, VIEW_HEIGHT - 120);
+    player1_weapon2->setVisible(false);
+    level_scene.addItem(player1_weapon2);
 
-    level_1_weapon3 = new QGraphicsPixmapItem();
-    level_1_weapon3->setPixmap(QPixmap(WEAPON_BACKGROUND));
-    level_1_weapon3->setScale(0.1);
-    level_1_weapon3->setPos(VIEW_WIDTH - 100, VIEW_HEIGHT - 50);
-    level_1_scene.addItem(level_1_weapon3);
+    player1_weapon3 = new QGraphicsPixmapItem();
+    player1_weapon3->setPixmap(QPixmap(WEAPON_BACKGROUND));
+    player1_weapon3->setScale(0.1);
+    player1_weapon3->setPos(VIEW_WIDTH - 100, VIEW_HEIGHT - 50);
+    player1_weapon3->setVisible(false);
+    level_scene.addItem(player1_weapon3);
 
-    level_1_weapon4 = new QGraphicsPixmapItem();
-    level_1_weapon4->setPixmap(QPixmap(WEAPON_BACKGROUND));
-    level_1_weapon4->setScale(0.1);
-    level_1_weapon4->setPos(VIEW_WIDTH - 160, VIEW_HEIGHT - 50);
-    level_1_scene.addItem(level_1_weapon4);
+    player1_weapon4 = new QGraphicsPixmapItem();
+    player1_weapon4->setPixmap(QPixmap(WEAPON_BACKGROUND));
+    player1_weapon4->setScale(0.1);
+    player1_weapon4->setPos(VIEW_WIDTH - 160, VIEW_HEIGHT - 50);
+    player1_weapon4->setVisible(false);
+    level_scene.addItem(player1_weapon4);
 
 
     //加载得分
-    level_1_score = new QLineEdit();
-    level_1_score->setText("得分：114514");
-    level_1_score->setReadOnly(true);
-    level_1_score->move(VIEW_WIDTH - 160, 0);
-    level_1_scene.addWidget(level_1_score);
-    level_1_score->setStyleSheet(R"(
+    score = new QLineEdit();
+    score->setText("得分：114514");
+    score->setReadOnly(true);
+    score->move(VIEW_WIDTH - 160, 0);
+    score->setVisible(false);
+    level_scene.addWidget(score);
+    score->setStyleSheet(R"(
                                  QLineEdit:read-only {
                                      font-family: "Arial Black";  /* 字体家族 */
                                      font-size: 18px;            /* 字体大小 */
@@ -439,9 +353,8 @@ void Widget::load_levels()
                                  }
                              )");
 
-
-
-
+      //加载英雄机
+    level_scene.addItem(heroplane1);
 }
 //加载英雄机资源
 void Widget::load_heroplane()
@@ -459,40 +372,68 @@ void Widget::turn_to_menu()
 //转到第一关
 void Widget::turn_to_level1()
 {
-    main_view.setScene(&level_1_scene);//将视图对准第一关场景
+    main_view.setScene(&level_scene);//将视图对准第一关场景
+
+    //将需要的组件可视化
+    level_1_background1->setVisible(true);
+    level_1_background2->setVisible(true);
+    player1_healthBar->setVisible(true);
+    player1_healthValue->setVisible(true);
+    score->setVisible(true);
+    level_progressBar->setVisible(true);
+    player1_weapon1->setVisible(true);
+    player1_weapon2->setVisible(true);
+    player1_weapon3->setVisible(true);
+    player1_weapon4->setVisible(true);
+
     connect(game_timer, QTimer::timeout, this, level_1_update);//设置计时器与第一关场景之间的信号槽
-    //将英雄机加载到第一关
-    level_1_scene.addItem(heroplane1);
+
+
 }
 
+//键盘控制英雄机移动
 void Widget::heroplane_move2(HeroPlane* heroplane)
 {
     int x = heroplane->pos().x();
     int y = heroplane->pos().y();
+    int delta_x = 0, delta_y = 0;
+    int step = 0;
     for (int keyCode : keylist){
         switch(keyCode){
         case Qt::Key_W:
-            y -= heroplane->speed;
+            delta_y -= heroplane->speed;
+            step++;
             break;
         case Qt::Key_D:
-            x += heroplane->speed;
+            delta_x += heroplane->speed;
+            step++;
             break;
         case Qt::Key_A:
-            x -= heroplane->speed;
+            delta_x -= heroplane->speed;
+            step++;
             break;
         case Qt::Key_S:
-            y += heroplane->speed;
+            delta_y += heroplane->speed;
+            step++;
             break;
         }
     }
-    heroplane->setPos(x, y);
+    if (step == 1){
+        x += delta_x;
+        y += delta_y;
+    }
+    else if (step == 2){
+        x += delta_x * 0.707;//乘以根号二分之一，保证斜向移动时速度和垂直移动时一致
+        y += delta_y * 0.707;
+    }
+    heroplane->move_to(x, y);
 }
 
 //实现鼠标控制飞机移动
 void Widget::heroplane_move1()
 {
-    int x = heroplane1->pos().x();
-    int y = heroplane1->pos().y();
+    double x = heroplane1->pos().x();
+    double y = heroplane1->pos().y();
     QPoint point = QCursor::pos();
     QPoint local_point = mapFromGlobal(point);
     int px = local_point.x(), py = local_point.y();
@@ -502,23 +443,23 @@ void Widget::heroplane_move1()
     double rate_y = abs(cy - py) / double(abs(cx - px) + abs(cy - py));
 
     if ( cx > px + 5 && cx >= 0){
-        x -= heroplane1->speed * rate_x;
+        x -= heroplane1->speed * rate_x * 1.2;//不知道为什么鼠标控制移动会比较慢，加个1.2系数修正一下
     }
     else if (cx < px - 5 && cx <= VIEW_WIDTH){
-        x += heroplane1->speed * rate_x;
+        x += heroplane1->speed * rate_x * 1.2;
     }
     if (cy > py + 5 && cy >= 0){
-        y -= heroplane1->speed * rate_y;
+        y -= heroplane1->speed * rate_y * 1.2;
     }
     else if (cy < py - 5 && cy <= VIEW_HEIGHT){
-        y += heroplane1->speed * rate_y;
+        y += heroplane1->speed * rate_y * 1.2;
     }
-    heroplane1->setPos(x, y);
+    heroplane1->move_to(x, y);
 }
 
 void Widget::level_1_update()
 {
-    //场景移动
+    //场景移动    
     level_1_background1->setY(level_1_background1->y() + 2);
     if (level_1_background1->y() >= 1229){
         level_1_background1->setY(0);
@@ -539,13 +480,18 @@ void Widget::level_1_update()
 
 void Widget::keyPressEvent(QKeyEvent *event)
 {
-    if (move_mode == 1)return;
+
     switch (event->key()) {
     case Qt::Key_W:
     case Qt::Key_D:
     case Qt::Key_A:
     case Qt::Key_S:
+        if (move_mode == 1)return;
         keylist.append(event->key());
+        break;
+    case Qt::Key_P: //按下P键暂停
+        game_pause();
+        break;
     }
 }
 
@@ -560,6 +506,23 @@ void Widget::mousePressEvent(QMouseEvent *event)
     if (event->button() == Qt::RightButton && keylist.empty()){
         move_mode += 1;
         move_mode %= 2;
+    }
+}
+
+//实现游戏暂停
+void Widget::game_pause()
+{
+    if (game_status == 0){
+        pause_background->setVisible(true);
+        pause_picture->setVisible(true);
+        game_timer->stop();
+        game_status = 1;
+    }
+    else if (game_status == 1){
+        pause_background->setVisible(false);
+        pause_picture->setVisible(false);
+        game_timer->start(GAME_PERIOD);
+        game_status = 0;
     }
 }
 

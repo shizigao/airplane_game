@@ -9,6 +9,8 @@ public:
     HeroPlane();
     HeroPlane(int x, int y, QPixmap pixmap);
 
+    //飞机移动（判断是否越界）
+    void move_to(double x, double y);
 
 };
 

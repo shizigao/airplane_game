@@ -11,3 +11,12 @@ HeroPlane::HeroPlane(int x, int y, QPixmap pixmap)
     setPixmap(pixmap);
     rect.setSize(QSize(pixmap.width(), pixmap.height()));//设置飞机的矩形碰撞箱
 }
+
+void HeroPlane::move_to(double x, double y)
+{
+    if (x <= 0)x = 0;
+    if (x >= VIEW_WIDTH - 100)x = VIEW_WIDTH - 100;
+    if (y >= VIEW_HEIGHT - 65)y = VIEW_HEIGHT - 65;
+    if (y <= 0)y = 0;
+    setPos(x, y);
+}

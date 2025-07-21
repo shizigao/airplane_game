@@ -15,6 +15,12 @@
 #include "heroplane.h"
 #include <QTimer>
 #include <QList>
+#include <QMediaPlayer>
+#include <QQueue>
+#include <QList>
+#include "enemybullet.h"
+#include "enemyplane.h"
+#include "herobullet.h"
 namespace Ui {
 class Widget;
 }
@@ -31,6 +37,9 @@ public:
     //加载资源
     void load_resources();//加载资源总函数
     void load_timer();//加载游戏计时器
+    void load_sound();//加载音乐和音效等
+    void load_object_pool();//加载对象池
+    void load_pause();//加载暂停界面
     void load_startgame();//加载开始界面资源
     void load_menu();//加载主菜单资源
     void load_levels();//加载关卡资源
@@ -49,7 +58,7 @@ public:
     //游戏周期更新函数，表示每个游戏周期所有组件的行为
     //通用更新函数，包含英雄机的移动、敌机的移动、子弹移动、飞机碰撞检测和敌机碰撞检测
     void game_update();
-    //各个管钱的更新函数，需要单独实现
+    //各个关卡的更新函数，需要单独实现
     void level_1_update();//第一关的更新函数
     void level_2_update();//第二关的更新函数
     void level_3_update();//第三关的更新函数
@@ -57,11 +66,17 @@ public:
     void level_5_update();//第五关的更新函数
 
     
-    void keyPressEvent(QKeyEvent *event);
-    void keyReleaseEvent(QKeyEvent *event);
-    void mousePressEvent(QMouseEvent *event);
+    void keyPressEvent(QKeyEvent *event);//处理键盘按下事件
+    void keyReleaseEvent(QKeyEvent *event);//处理键盘松开事件
+    void mousePressEvent(QMouseEvent *event);//处理鼠标点击事件
+    void game_pause();//实现游戏暂停功能
+
+
 private:
+
+
     Ui::Widget *ui;
+
     //英雄机
     HeroPlane *heroplane1, *heroplane2;//因为有多人模式，所以设置两个英雄机
     
@@ -70,17 +85,14 @@ private:
     //主视图
     QGraphicsView main_view;
 
-    //场景
+    //场景（游戏中所有的场景都在这）
     QGraphicsScene main_scene;//开始界面
     QGraphicsScene main_scene2;//主菜单
-    QGraphicsScene level_1_scene;//第一关场景
-    QGraphicsScene level_2_scene;//第二关场景
-    QGraphicsScene level_3_scene;//第三关场景
-    QGraphicsScene level_4_scene;//第四关场景
-    QGraphicsScene level_5_scene;//第五关场景
+    QGraphicsScene level_scene;//关卡场景
 
-
-
+    //暂停界面
+    QGraphicsRectItem *pause_background;//半透明黑色矩形框，用于模拟暂停界面
+    QGraphicsPixmapItem *pause_picture;
 
 
     //背景图片
@@ -99,52 +111,22 @@ private:
 
     //ProgressBar
     //关卡进度条
-    QProgressBar *level_1_progressBar;
-    QProgressBar *level_2_progressBar;
-    QProgressBar *level_3_progressBar;
-    QProgressBar *level_4_progressBar;
-    QProgressBar *level_5_progressBar;
+    QProgressBar *level_progressBar;
+
     //生命条
-    QProgressBar *level_1_healthBar;
-    QProgressBar *level_2_healthBar;
-    QProgressBar *level_3_healthBar;
-    QProgressBar *level_4_healthBar;
-    QProgressBar *level_5_healthBar;
-
-    QLineEdit *level_1_healthValue;
-    QLineEdit *level_2_healthValue;
-    QLineEdit *level_3_healthValue;
-    QLineEdit *level_4_healthValue;
-    QLineEdit *level_5_healthValue;
+    QProgressBar *player1_healthBar;
+    QLineEdit *player1_healthValue;
     //武器背景
-    QGraphicsPixmapItem *level_1_weapon1;
-    QGraphicsPixmapItem *level_1_weapon2;
-    QGraphicsPixmapItem *level_1_weapon3;
-    QGraphicsPixmapItem *level_1_weapon4;
-    QGraphicsPixmapItem *level_2_weapon1;
-    QGraphicsPixmapItem *level_2_weapon2;
-    QGraphicsPixmapItem *level_2_weapon3;
-    QGraphicsPixmapItem *level_2_weapon4;
-    QGraphicsPixmapItem *level_3_weapon1;
-    QGraphicsPixmapItem *level_3_weapon2;
-    QGraphicsPixmapItem *level_3_weapon3;
-    QGraphicsPixmapItem *level_3_weapon4;
-    QGraphicsPixmapItem *level_4_weapon1;
-    QGraphicsPixmapItem *level_4_weapon2;
-    QGraphicsPixmapItem *level_4_weapon3;
-    QGraphicsPixmapItem *level_4_weapon4;
-    QGraphicsPixmapItem *level_5_weapon1;
-    QGraphicsPixmapItem *level_5_weapon2;
-    QGraphicsPixmapItem *level_5_weapon3;
-    QGraphicsPixmapItem *level_5_weapon4;
+    QGraphicsPixmapItem *player1_weapon1;
+    QGraphicsPixmapItem *player1_weapon2;
+    QGraphicsPixmapItem *player1_weapon3;
+    QGraphicsPixmapItem *player1_weapon4;
+
     //分数板
-    QLineEdit *level_1_score;
-    QLineEdit *level_2_score;
-    QLineEdit *level_3_score;
-    QLineEdit *level_4_score;
-    QLineEdit *level_5_score;
+    QLineEdit *score;
 
-
+    //音乐播放器
+    QMediaPlayer *backgroundMusic;
 
     //其他变量
 
@@ -152,10 +134,19 @@ private:
     int move_mode = 0;//0表示随鼠标移动,1表示随键盘移动
     //存储键盘按键的列表
     QList<int> keylist;
+    //游戏界面状态（有限状态机）
+    int game_status = 0;//0表示正常运行，1表示游戏暂停，2表示游戏结束
 
-
-
-
+    //对象池
+    //敌机对象池
+    QList<EnemyPlane*> enemyplane_pool;
+    QQueue<EnemyPlane*> enemyplane_queue;
+    //我方子弹对象池
+    QList<HeroBullet*> herobullet_pool;
+    QQueue<HeroBullet*> herobullet_queue;
+    //敌方子弹对象池
+    QList<EnemyBullet*> enemybullet_pool;
+    QQueue<EnemyBullet*> enemybullet_queue;
 };
 
 #endif // WIDGET_H

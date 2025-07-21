@@ -6,6 +6,7 @@ class EnemyBullet: public Bullet
 {
 public:
     EnemyBullet();
+    EnemyBullet(int x, int y, QPixmap pixmap);
 };
 
 #endif // ENEMYBULLET_H
