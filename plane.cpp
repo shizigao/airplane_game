@@ -5,7 +5,7 @@ Plane::Plane()
 
 }
 
-Plane::Plane(int x, int y, QPixmap pixmap)
+Plane::Plane(double x, double y, QPixmap pixmap)
 {
     setPixmap(pixmap);
     setPos(x, y);

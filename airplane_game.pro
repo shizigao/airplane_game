@@ -33,7 +33,10 @@ SOURCES += \
     bullet.cpp \
     heroplane.cpp \
     herobullet.cpp \
-    enemybullet.cpp
+    enemybullet.cpp \
+    weapon.cpp \
+    heroweapon.cpp \
+    enemyweapon.cpp
 
 HEADERS += \
         widget.h \
@@ -43,7 +46,10 @@ HEADERS += \
     bullet.h \
     heroplane.h \
     herobullet.h \
-    enemybullet.h
+    enemybullet.h \
+    weapon.h \
+    heroweapon.h \
+    enemyweapon.h
 
 FORMS += \
         widget.ui

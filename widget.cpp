@@ -9,6 +9,8 @@ Widget::Widget(QWidget *parent) :
 {
     //进行初始化
     ui->setupUi(this);
+    this->setWindowTitle("双人飞机大战");
+    this->setWindowIcon(QIcon(WINDOW_ICON));
     main_view.setScene(&main_scene);
     main_view.setParent(this);
     main_view.centerOn(384, 576);//将视图对准
@@ -26,7 +28,6 @@ Widget::Widget(QWidget *parent) :
 
 
 
-
 }
 
 Widget::~Widget()
@@ -37,13 +38,15 @@ Widget::~Widget()
 //加载资源的总函数
 void Widget::load_resources()
 {
-    load_timer();
+
     load_heroplane();
     load_sound();
-    load_object_pool();
+    load_levels();
+    //load_object_pool();
+    load_timer();
     load_startgame();
     load_menu();
-    load_levels();
+
     load_pause();
 }
 
@@ -51,6 +54,12 @@ void Widget::load_timer()
 {
     game_timer = new QTimer(this);
     game_timer->start(GAME_PERIOD);
+    heroplane1_weapon1_timer = new QTimer(this);
+    heroplane1_weapon2_timer = new QTimer(this);
+    heroplane1_weapon3_timer = new QTimer(this);
+    heroplane2_weapon1_timer = new QTimer(this);
+    heroplane2_weapon2_timer = new QTimer(this);
+    heroplane2_weapon3_timer = new QTimer(this);
 }
 
 void Widget::load_sound()
@@ -76,12 +85,19 @@ void Widget::load_sound()
 void Widget::load_object_pool()
 {
     //预先创建一定数量的对象
-    //创建10个敌机
+    //创建10个敌机和对应计时器
     for (int i = 0; i < 10; i++){
-        EnemyPlane* enemyplane = new EnemyPlane(0, 0, QPixmap(ENEMYPLANE_PICTURE1));
+        QTimer* timer = new QTimer();
+        EnemyPlane* enemyplane = new EnemyPlane(timer);
+        //连接信号槽（控制敌机自动开火）
+        connect(timer, QTimer::timeout, this, [=](){
+            enemyplane_shoot(enemyplane);
+        });
         enemyplane->status = 1;
         enemyplane_pool.append(enemyplane);
         enemyplane_queue.append(enemyplane);
+        enemyplane->setVisible(false);
+        level_scene.addItem(enemyplane);
     }
     //创建10颗我方子弹
     for (int i = 0; i < 10; i++){
@@ -89,6 +105,8 @@ void Widget::load_object_pool()
         herobullet->status = 1;
         herobullet_pool.append(herobullet);
         herobullet_queue.append(herobullet);
+        herobullet->setVisible(false);
+        level_scene.addItem(herobullet);
     }
     //创建10颗敌方子弹
     for (int i = 0; i < 10; i++){
@@ -96,6 +114,8 @@ void Widget::load_object_pool()
         enemybullet->status = 1;
         enemybullet_pool.append(enemybullet);
         enemybullet_queue.append(enemybullet);
+        enemybullet->setVisible(false);
+        level_scene.addItem(enemybullet);
     }
 }
 
@@ -306,33 +326,34 @@ void Widget::load_levels()
 
 
     //加载武器背景
-    player1_weapon1 = new QGraphicsPixmapItem();
-    player1_weapon1->setPixmap(QPixmap(WEAPON_BACKGROUND));
-    player1_weapon1->setScale(0.1);
-    player1_weapon1->setPos(VIEW_WIDTH - 100, VIEW_HEIGHT - 190);
-    player1_weapon1->setVisible(false);
-    level_scene.addItem(player1_weapon1);
+    player1_weapon1_background = new QGraphicsPixmapItem();
+    player1_weapon1_background->setPixmap(QPixmap(WEAPON_BACKGROUND));
+    player1_weapon1_background->setScale(0.12);
+    player1_weapon1_background->setPos(VIEW_WIDTH - 100, VIEW_HEIGHT - 200);
+    player1_weapon1_background->setVisible(false);
+    level_scene.addItem(player1_weapon1_background);
 
-    player1_weapon2 = new QGraphicsPixmapItem();
-    player1_weapon2->setPixmap(QPixmap(WEAPON_BACKGROUND));
-    player1_weapon2->setScale(0.1);
-    player1_weapon2->setPos(VIEW_WIDTH - 100, VIEW_HEIGHT - 120);
-    player1_weapon2->setVisible(false);
-    level_scene.addItem(player1_weapon2);
+    player1_weapon2_background = new QGraphicsPixmapItem();
+    player1_weapon2_background->setPixmap(QPixmap(WEAPON_BACKGROUND));
+    player1_weapon2_background->setScale(0.12);
+    player1_weapon2_background->setPos(VIEW_WIDTH - 100, VIEW_HEIGHT - 140);
+    player1_weapon2_background->setVisible(false);
+    level_scene.addItem(player1_weapon2_background);
 
-    player1_weapon3 = new QGraphicsPixmapItem();
-    player1_weapon3->setPixmap(QPixmap(WEAPON_BACKGROUND));
-    player1_weapon3->setScale(0.1);
-    player1_weapon3->setPos(VIEW_WIDTH - 100, VIEW_HEIGHT - 50);
-    player1_weapon3->setVisible(false);
-    level_scene.addItem(player1_weapon3);
+    player1_weapon3_background = new QGraphicsPixmapItem();
+    player1_weapon3_background->setPixmap(QPixmap(WEAPON_BACKGROUND));
+    player1_weapon3_background->setScale(0.12);
+    player1_weapon3_background->setPos(VIEW_WIDTH - 100, VIEW_HEIGHT - 80);
+    player1_weapon3_background->setVisible(false);
+    level_scene.addItem(player1_weapon3_background);
 
-    player1_weapon4 = new QGraphicsPixmapItem();
-    player1_weapon4->setPixmap(QPixmap(WEAPON_BACKGROUND));
-    player1_weapon4->setScale(0.1);
-    player1_weapon4->setPos(VIEW_WIDTH - 160, VIEW_HEIGHT - 50);
-    player1_weapon4->setVisible(false);
-    level_scene.addItem(player1_weapon4);
+    player1_weapon4_background = new QGraphicsPixmapItem();
+    player1_weapon4_background->setPixmap(QPixmap(WEAPON_BACKGROUND));
+    player1_weapon4_background->setScale(0.12);
+    player1_weapon4_background->setPos(VIEW_WIDTH - 160, VIEW_HEIGHT - 80);
+    player1_weapon4_background->setVisible(false);
+    level_scene.addItem(player1_weapon4_background);
+
 
 
     //加载得分
@@ -363,6 +384,27 @@ void Widget::load_heroplane()
     heroplane2 = new HeroPlane(600, 1000, QPixmap(HEROPLANE_2));
 }
 
+void Widget::load_weapon1(HeroWeapon *heroweapon)
+{
+    heroweapon->setScale(0.4);
+    heroweapon->setPos(VIEW_WIDTH - 101, VIEW_HEIGHT - 200);
+    level_scene.addItem(heroweapon);
+}
+
+void Widget::load_weapon2(HeroWeapon *heroweapon)
+{
+    heroweapon->setScale(0.4);
+    heroweapon->setPos(VIEW_WIDTH - 101, VIEW_HEIGHT - 140);
+    level_scene.addItem(heroweapon);
+}
+
+void Widget::load_weapon3(HeroWeapon *heroweapon)
+{
+    heroweapon->setScale(0.4);
+    heroweapon->setPos(VIEW_WIDTH - 101, VIEW_HEIGHT - 80);
+    level_scene.addItem(heroweapon);
+}
+
 //转到菜单页面
 void Widget::turn_to_menu()
 {
@@ -381,13 +423,22 @@ void Widget::turn_to_level1()
     player1_healthValue->setVisible(true);
     score->setVisible(true);
     level_progressBar->setVisible(true);
-    player1_weapon1->setVisible(true);
-    player1_weapon2->setVisible(true);
-    player1_weapon3->setVisible(true);
-    player1_weapon4->setVisible(true);
+    player1_weapon1_background->setVisible(true);
+    player1_weapon2_background->setVisible(true);
+    player1_weapon3_background->setVisible(true);
+    player1_weapon4_background->setVisible(true);
 
-    connect(game_timer, QTimer::timeout, this, level_1_update);//设置计时器与第一关场景之间的信号槽
-
+    //为玩家1配置初始武器
+    heroplane1->weapon1 = new HeroWeapon();
+    heroplane1->weapon1->init(1);//初始化为第一种武器
+    load_weapon1(heroplane1->weapon1);//加载武器图标
+    //为武器1设置计时器
+    heroplane1_weapon1_timer->start(heroplane1->weapon1->interval);
+    connect(heroplane1_weapon1_timer, QTimer::timeout, this, [=](){
+        heroplane1->weapon1->is_ready = true;
+    });
+    //设置计时器与第一关场景之间的信号槽
+    connect(game_timer, QTimer::timeout, this, level_1_update);
 
 }
 
@@ -459,15 +510,28 @@ void Widget::heroplane_move1()
 
 void Widget::level_1_update()
 {
+   
     //场景移动    
-    level_1_background1->setY(level_1_background1->y() + 2);
+    level_1_background1->setY(level_1_background1->y() + 1);
     if (level_1_background1->y() >= 1229){
         level_1_background1->setY(0);
     }
-    level_1_background2->setY(level_1_background2->y() + 2);
+    level_1_background2->setY(level_1_background2->y() + 1);
     if (level_1_background2->y() >= 0){
         level_1_background2->setY(-1229);
     }
+    
+    //第一种敌机每2秒随机在屏幕上方生成
+    static int count = 0;//单位:ms
+    count += GAME_PERIOD;
+    if (count == 2000){
+        int x = rand()%668, y = -100;
+        EnemyPlane* new_enemyplane = get_enemyplane(x, y, 1);
+        count = 0;
+    }
+    
+    
+    
     //英雄机位置更新
     if (move_mode == 1){
         heroplane_move1();
@@ -475,7 +539,62 @@ void Widget::level_1_update()
     else{
         heroplane_move2(heroplane1);
     }
+
+    //游戏通用更新函数
     game_update();
+}
+
+EnemyPlane *Widget::get_enemyplane(int x, int y, int kind)
+{
+    EnemyPlane* enemyplane;
+    if (enemyplane_queue.empty()){
+        QTimer *timer = new QTimer();//新建一个计时器
+        enemyplane = new EnemyPlane(timer);
+        //连接信号槽（控制敌机自动开火）
+        connect(timer, QTimer::timeout, this, [=](){
+            enemyplane_shoot(enemyplane);
+        });
+        enemyplane_pool.append(enemyplane);
+        level_scene.addItem(enemyplane);//加入背景
+    }
+    else{
+        enemyplane = enemyplane_queue.dequeue();        
+    }
+    enemyplane->status = 2;
+    enemyplane->init(x, y, kind);
+    return enemyplane;
+}
+
+EnemyBullet *Widget::get_enemybullet(int x, int y, int kind)
+{
+    EnemyBullet* enemybullet;
+    if (enemybullet_queue.empty()){
+        enemybullet = new EnemyBullet();
+        enemybullet_pool.append(enemybullet);
+        level_scene.addItem(enemybullet);//加入背景
+    }
+    else {
+        enemybullet = enemybullet_queue.dequeue();
+    }
+    enemybullet->status = 2;
+    enemybullet->init(x, y, kind);
+    return enemybullet;
+}
+
+HeroBullet *Widget::get_herobullet(int x, int y, int kind)
+{
+    HeroBullet* herobullet;
+    if (herobullet_queue.empty()){
+        herobullet = new HeroBullet();
+        herobullet_pool.append(herobullet);
+        level_scene.addItem(herobullet);//加入背景
+    }
+    else{
+        herobullet = herobullet_queue.dequeue();
+    }
+    herobullet->status = 2;
+    herobullet->init(x, y, kind);
+    return herobullet;
 }
 
 void Widget::keyPressEvent(QKeyEvent *event)
@@ -492,13 +611,40 @@ void Widget::keyPressEvent(QKeyEvent *event)
     case Qt::Key_P: //按下P键暂停
         game_pause();
         break;
+    case Qt::Key_J://按下J键英雄机1武器1连续发射
+        heroplane1_weapon1_continuous_firing = true;
+        break;
+    case Qt::Key_K://按下J键英雄机1武器2连续发射
+        heroplane1_weapon2_continuous_firing = true;
+        break;
+    case Qt::Key_L://按下J键英雄机1武器3连续发射
+        heroplane1_weapon3_continuous_firing = true;
+        break;
     }
 }
 
 void Widget::keyReleaseEvent(QKeyEvent *event)
 {
-    if (move_mode == 1)return;
-    keylist.removeOne(event->key());
+    switch(event->key()){
+    case Qt::Key_J://松开J键英雄机1武器1取消发射
+        heroplane1_weapon1_continuous_firing = false;
+        break;
+    case Qt::Key_K://松开K键英雄机1武器2取消发射
+        heroplane1_weapon2_continuous_firing = false;
+        break;
+    case Qt::Key_L://松开L键英雄机1武器3取消发射
+        heroplane1_weapon3_continuous_firing = false;
+        break;
+    case Qt::Key_W:
+    case Qt::Key_D:
+    case Qt::Key_A:
+    case Qt::Key_S:
+        if (move_mode == 1)return;
+        keylist.removeOne(event->key());
+        break;
+    }
+
+
 }
 
 void Widget::mousePressEvent(QMouseEvent *event)
@@ -526,10 +672,128 @@ void Widget::game_pause()
     }
 }
 
+void Widget::heroplane1_shoot_1()
+{
+    //先判断武器是否可发射
+    if (!heroplane1->weapon1->is_ready)return;
+    //可发射就发射一颗子弹
+    HeroBullet* new_herobullet;
+    double x = heroplane1->x() + 42, y = heroplane1->y() - 30;
+    new_herobullet = get_herobullet(x, y , heroplane1->weapon1->weapon_kind);
+    new_herobullet->set_value(heroplane1->weapon1);
+    heroplane1->weapon1->is_ready = false;//发射后要重置武器冷却
+    heroplane1_weapon1_timer->start(heroplane1->weapon1->interval);//重新计时，顺便刷新计时间隔
+}
+
+void Widget::heroplane1_shoot_2()
+{
+    //先判断武器是否可发射
+    if (!heroplane1->weapon2->is_ready)return;
+    //可发射就发射一颗子弹
+    HeroBullet* new_herobullet;
+    double x = heroplane1->x() + 42, y = heroplane1->y() - 30;
+    new_herobullet = get_herobullet(x, y , heroplane1->weapon2->weapon_kind);
+    new_herobullet->set_value(heroplane1->weapon2);
+    heroplane1->weapon2->is_ready = false;//发射后要重置
+    heroplane1_weapon2_timer->start(heroplane1->weapon2->interval);//重新计时，顺便刷新计时间隔
+}
+
+void Widget::heroplane1_shoot_3()
+{
+    //先判断武器是否可发射
+    if (!heroplane1->weapon3->is_ready)return;
+    //可发射就发射一颗子弹
+    HeroBullet* new_herobullet;
+    double x = heroplane1->x() + 42, y = heroplane1->y() - 30;
+    new_herobullet = get_herobullet(x, y , heroplane1->weapon3->weapon_kind);
+    new_herobullet->set_value(heroplane1->weapon3);
+    heroplane1->weapon3->is_ready = false;//发射后要重置
+    heroplane1_weapon3_timer->start(heroplane1->weapon3->interval);//重新计时，顺便刷新计时间隔
+}
+
+void Widget::enemyplane_shoot(EnemyPlane *enemyplane)
+{
+    EnemyBullet* new_enemybullet;
+    double x = enemyplane->pos().x() + enemyplane->pixmap().width() / 2;
+    double y = enemyplane->pos().y() + enemyplane->pixmap().height();
+    new_enemybullet = get_enemybullet(x, y, enemyplane->weapon->weapon_kind);
+    new_enemybullet->set_value(enemyplane->weapon);
+}
+
+void Widget::collision_detection()
+{
+    collision_detection_herobullet_with_enemyplane();
+    collision_detection_enemybullet_with_heroplane();
+    collision_detection_heroplane_with_enemyplane();
+}
+
+void Widget::collision_detection_herobullet_with_enemyplane()
+{
+
+}
+
+void Widget::collision_detection_enemybullet_with_heroplane()
+{
+
+}
+
+void Widget::collision_detection_heroplane_with_enemyplane()
+{
+
+}
+
 //游戏更新函数
 void Widget::game_update()
 {
+    //三个对象池中的对象的移动和检测
 
+    //敌机池
+    for (EnemyPlane* enemyplane : enemyplane_pool){
+        if (enemyplane->status == 2){//status为2则移动
+            enemyplane->move();
+            enemyplane->is_live();//判断敌机是否还存活
+        }
+        else if (enemyplane->status == 0){//status为0则加入队列中
+            enemyplane_queue.append(enemyplane);
+            enemyplane->status = 1;
+            enemyplane->weapon_timer->stop();//停止计时器
+        }
+    }
+
+    //敌机子弹池
+    for (EnemyBullet* enemybullet : enemybullet_pool){
+        if (enemybullet->status == 2){
+            enemybullet->move();
+            enemybullet->is_live();
+        }
+        else if (enemybullet->status == 0){
+            enemybullet_queue.append(enemybullet);
+            enemybullet->status = 1;
+        }
+    }
+
+    //英雄机子弹池
+    for (HeroBullet* herobullet : herobullet_pool){
+        if (herobullet->status == 2){
+            herobullet->move();
+            herobullet->is_live();
+        }
+        else if (herobullet->status == 0){
+            herobullet_queue.append(herobullet);
+            herobullet->status = 1;
+        }
+    }
+
+    //持续开火检测
+    if (heroplane1->weapon1 != nullptr && heroplane1_weapon1_continuous_firing){//要先判断对应武器是否已获得（已初始化）
+        heroplane1_shoot_1();
+    }
+    if (heroplane1->weapon2 != nullptr && heroplane1_weapon2_continuous_firing){
+        heroplane1_shoot_2();
+    }
+    if (heroplane1->weapon3 != nullptr && heroplane1_weapon3_continuous_firing){
+        heroplane1_shoot_3();
+    }
 }
 
 

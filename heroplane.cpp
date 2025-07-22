@@ -5,11 +5,12 @@ HeroPlane::HeroPlane()
 
 }
 
-HeroPlane::HeroPlane(int x, int y, QPixmap pixmap)
+HeroPlane::HeroPlane(double x, double y, QPixmap pixmap)
 {
     setPos(x, y);
     setPixmap(pixmap);
     rect.setSize(QSize(pixmap.width(), pixmap.height()));//设置飞机的矩形碰撞箱
+    speed = 10;
 }
 
 void HeroPlane::move_to(double x, double y)
@@ -19,4 +20,19 @@ void HeroPlane::move_to(double x, double y)
     if (y >= VIEW_HEIGHT - 65)y = VIEW_HEIGHT - 65;
     if (y <= 0)y = 0;
     setPos(x, y);
+}
+
+void HeroPlane::weapon1_shoot()
+{
+
+}
+
+void HeroPlane::weapon2_shoot()
+{
+
+}
+
+void HeroPlane::weapon3_shoot()
+{
+
 }

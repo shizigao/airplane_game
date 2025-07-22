@@ -42,11 +42,10 @@
         <file>picture/img-plane_7.png</file>
         <file>picture/start_game_button.png</file>
         <file>picture/unused1.png</file>
-        <file>picture/unused2.jpeg</file>
-        <file>picture/unused3.jpg</file>
         <file>picture/weapon_background.png</file>
         <file>picture/pause_picture.png</file>
         <file>bg.wav</file>
         <file>bomb.wav</file>
+        <file>picture/weapon2.png</file>
     </qresource>
 </RCC>
