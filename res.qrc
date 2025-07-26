@@ -47,5 +47,18 @@
         <file>bg.wav</file>
         <file>bomb.wav</file>
         <file>picture/weapon2.png</file>
+        <file>picture/endbackground.png</file>
+        <file>picture/shield.png</file>
+        <file>picture/weapon1.png</file>
+        <file>bullet_sound.wav</file>
+        <file>picture/hero_bullet.png</file>
+        <file>picture/enemyplane1.png</file>
+        <file>picture/weapon3.png</file>
+        <file>picture/weapon4.png</file>
+        <file>picture/upgrade.png</file>
+        <file>picture/img-boss_1.png</file>
+        <file>picture/img-boss_2.png</file>
+        <file>bomb_sound.wav</file>
+        <file>picture/bomb_picture.png</file>
     </qresource>
 </RCC>

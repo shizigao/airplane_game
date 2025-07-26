@@ -36,7 +36,8 @@ SOURCES += \
     enemybullet.cpp \
     weapon.cpp \
     heroweapon.cpp \
-    enemyweapon.cpp
+    enemyweapon.cpp \
+    powerup.cpp
 
 HEADERS += \
         widget.h \
@@ -49,7 +50,8 @@ HEADERS += \
     enemybullet.h \
     weapon.h \
     heroweapon.h \
-    enemyweapon.h
+    enemyweapon.h \
+    powerup.h
 
 FORMS += \
         widget.ui
