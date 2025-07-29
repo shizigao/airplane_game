@@ -28,6 +28,7 @@ void HeroWeapon::init(int weapon_kind)
 void HeroWeapon::init1()
 {
     interval = HEROWEAPON1_INTERVAL;
+    speed = HEROWEAPON1_SPEED;
 
     weapon_timer->setInterval(interval);
     weapon_timer->setSingleShot(true);

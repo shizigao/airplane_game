@@ -234,7 +234,15 @@ void Widget::general_update()
         }
     }
 
-
+    //英雄机子弹的移动
+    for (HeroBullet* herobullet : *(herobullet_pool->herobullet_pool_list)){
+        if (herobullet->status == 2){//子弹处于激活态，则移动
+            herobullet->move();
+        }
+        else if (herobullet->status == 0){
+            herobullet_pool->return_herobullet(herobullet);
+        }
+    }
 }
 
 void Widget::turn_to_level1()

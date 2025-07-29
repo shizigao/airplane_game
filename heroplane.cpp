@@ -36,7 +36,7 @@ void HeroPlane::weapon1_shoot(HeroBulletPool* herobullet_pool, QGraphicsScene* l
 {
     if (!weapon1 || weapon1->weapon_timer->isActive())return;
     HeroBullet* herobullet = herobullet_pool->get_new_herobullet();
-    herobullet->init(weapon1->weapon_kind);
+    herobullet->init(weapon1->weapon_kind, weapon1);
     herobullet->setPos(pos().x() + pixmap().width() / 2.0 - 8, pos().y() - 18);
     //重新计时
     weapon1->weapon_timer->start();
@@ -46,7 +46,7 @@ void HeroPlane::weapon2_shoot(HeroBulletPool *herobullet_pool, QGraphicsScene *l
 {
     if (!weapon2 || weapon2->weapon_timer->isActive())return;
     HeroBullet* herobullet = herobullet_pool->get_new_herobullet();
-    herobullet->init(weapon2->weapon_kind);
+    herobullet->init(weapon2->weapon_kind, weapon2);
     herobullet->setPos(pos().x(), pos().y());
     //重新计时
     weapon2->weapon_timer->start();
@@ -56,7 +56,7 @@ void HeroPlane::weapon3_shoot(HeroBulletPool *herobullet_pool, QGraphicsScene *l
 {
     if (!weapon3 || weapon3->weapon_timer->isActive())return;
     HeroBullet* herobullet = herobullet_pool->get_new_herobullet();
-    herobullet->init(weapon3->weapon_kind);
+    herobullet->init(weapon3->weapon_kind, weapon3);
     herobullet->setPos(pos().x(), pos().y());
     //重新计时
     weapon3->weapon_timer->start();

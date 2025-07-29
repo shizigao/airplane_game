@@ -10,6 +10,10 @@
 
 //配置文件
 
+//游戏框宽度和高度
+#define GAME_WIDTH 768
+#define GAME_HEIGHT 1152
+
 //图片、音效路径
 //开始游戏界面
 #define STARTGAME_BACKGROUND ":/resource/startgame_background.png"  //开始游戏背景
@@ -53,5 +57,6 @@
 
 //英雄机第一种武器的属性
 #define HEROWEAPON1_INTERVAL 200 //发射间隔200ms
+#define HEROWEAPON1_SPEED 20 //发射出的子弹的移动速度
 
 #endif // CONFIG_H

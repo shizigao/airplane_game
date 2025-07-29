@@ -17,6 +17,7 @@ HeroBulletPool::HeroBulletPool(QGraphicsScene* level_scene, int init_size)
         herobullet_pool_list->append(new_herobullet);
         herobullet_pool_queue->append(new_herobullet);
         new_herobullet->status = 1;
+        new_herobullet->setVisible(false);
         level_scene->addItem(new_herobullet);//把新建的子弹加入场景
     }
 }
@@ -33,6 +34,7 @@ HeroBullet *HeroBulletPool::get_new_herobullet()
     else{
         res = herobullet_pool_queue->dequeue();
     }
+    res->setVisible(true);
     res->status = 2;
     return res;
 }
