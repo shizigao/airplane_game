@@ -17,6 +17,8 @@
 #include "enemybullet.h"
 #include "enemyplane.h"
 #include "herobulletpool.h"
+#include "enemyplanepool.h"
+#include "random"
 namespace Ui {
 class Widget;
 }
@@ -116,6 +118,7 @@ public:
     //英雄机子弹的对象池
     HeroBulletPool* herobullet_pool = nullptr;
     //敌机的对象池
+    EnemyPlanePool* enemyplane_pool = nullptr;
     //敌机子弹的对象池
 
 

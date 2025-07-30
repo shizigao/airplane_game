@@ -65,6 +65,6 @@
 
 //敌机
 //第一种敌机
-#define ENEMYPLANE1_SPEED 2 //移动速度
+#define ENEMYPLANE1_SPEED 1 //移动速度
 
 #endif // CONFIG_H

@@ -166,6 +166,7 @@ void Widget::load_timer()
 void Widget::load_pool()
 {
     herobullet_pool = new HeroBulletPool(level_scene, 10);//初始加载10个对象
+    enemyplane_pool = new EnemyPlanePool(level_scene, 10);//初始加载10个对象
 
 }
 
@@ -188,7 +189,7 @@ void Widget::load_heroplane2(int heroplane_kind)
 
 void Widget::level1_update()
 {
-
+    //场景的移动
     level1_background1->moveBy(0.0, 1.0);
     level1_background2->moveBy(0.0, 1.0);
     if (level1_background1->pos().y() >= 1152){
@@ -198,7 +199,19 @@ void Widget::level1_update()
         level1_background2->setPos(0.0, -1152);
     }
 
+    //生成敌人的逻辑
+    static int count = 0;//计数
+    if (count == 200){//200帧生成一个敌人
+        EnemyPlane* enemyplane = enemyplane_pool->get_new_enemyplane();
+        enemyplane->init(1);//初始化
+        double rx = rand() % (GAME_WIDTH - enemyplane->pixmap().width());
+        enemyplane->setPos(rx, -100);
+        count = 0;
+    }
 
+    count++;
+
+    //通用更新函数
     general_update();
 }
 
@@ -239,8 +252,18 @@ void Widget::general_update()
         if (herobullet->status == 2){//子弹处于激活态，则移动
             herobullet->move();
         }
-        else if (herobullet->status == 0){
+        else if (herobullet->status == 0){//子弹失效，则加入子弹池等待队列
             herobullet_pool->return_herobullet(herobullet);
+        }
+    }
+    
+    //敌机移动
+    for (EnemyPlane* enemyplane : *(enemyplane_pool->enemyplane_pool_list)){
+        if (enemyplane->status == 2){//敌机处于激活态，则移动
+            enemyplane->move();
+        }
+        else if (enemyplane->status == 0){
+            enemyplane_pool->return_enemyplane(enemyplane);
         }
     }
 }
