@@ -24,6 +24,7 @@ void HeroBullet::init(int bullet_kind, HeroWeapon* heroweapon)
     }
     //把武器的数值赋值给子弹
     speed = heroweapon->speed;
+    damage = heroweapon->damage;
 }
 
 void HeroBullet::init1()
@@ -95,4 +96,19 @@ void HeroBullet::destroy()
 {
     status = 0;
     setVisible(false);//设置图片不可见
+}
+
+void HeroBullet::collide_with_enemyplane()
+{
+    switch(bullet_kind){
+    case 1:
+        destroy();
+        break;
+    case 2:
+        break;
+    case 3:
+        break;
+    case 4:
+        break;
+    }
 }

@@ -14,6 +14,8 @@ public:
     double speed = 0;
     //子弹是否连续发射（是否按下对应攻击键）
     bool is_continuously_shooting = false;
+    //发射的子弹的伤害
+    double damage = 0;
 };
 
 #endif // WEAPON_H

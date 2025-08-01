@@ -36,18 +36,25 @@
 #define LEVEL4_BACKGROUND ":/resource/img_bg_level_4.jpg" //第四关的背景
 #define LEVEL5_BACKGROUND ":/resource/img_bg_level_5.jpg" //第五关的背景
 
-//子弹图片
-#define HEROBULLET_PICTURE1 ":/resource/bullet_10.png" //第一种英雄机的子弹
 
 //英雄机图片
 #define HEROPLANE1_PICTURE ":/resource/hero.png" //第一种英雄机的图片
 #define HEROPLANE2_PICTURE ":/resource/hero2.png" //第二种英雄机的图片
 
+//英雄机子弹图片
+#define HEROBULLET_PICTURE1 ":/resource/bullet_10.png" //第一种英雄机的子弹
+
+
 //敌机的图片
 #define ENEMYPLANE1_PICTURE ":/resource/img-plane_1.png" //第一种敌机的图片
 
+//敌机子弹图片
+#define ENEMYBULLET1_PICTURE ":/resource/bullet_1.png" //第一种敌机子弹的图片
+
 //游戏周期
 #define GAME_PERIOD 10 //游戏周期：10ms
+
+
 
 //游戏常量
 
@@ -61,10 +68,16 @@
 //英雄机第一种武器的属性
 #define HEROWEAPON1_INTERVAL 200 //发射间隔200ms
 #define HEROWEAPON1_SPEED 20 //发射出的子弹的移动速度
+#define HEROWEAPON1_DAMAGE 20 //子弹的伤害
 
 
 //敌机
 //第一种敌机
-#define ENEMYPLANE1_SPEED 2 //移动速度
+#define ENEMYPLANE1_SPEED 1 //移动速度
+#define ENEMYPLANE1_HEALTH 100 //敌机的生命
+
+//第一种敌机武器的属性
+#define ENEMYWEAPON1_INTERVAL 2000 //发射间隔2000ms
+#define ENEMYWEAPON1_SPEED 10 //发射出的子弹的移动速度
 
 #endif // CONFIG_H

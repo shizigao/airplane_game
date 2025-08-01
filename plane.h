@@ -13,6 +13,8 @@ public:
     double speed = 0;
     //状态
     int status = 0;//0:失效态, 1:等待态, 2:激活态
+    //生命
+    double health = 0;
 
 };
 

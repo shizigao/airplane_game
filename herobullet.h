@@ -24,6 +24,9 @@ public:
     //子弹的销毁函数
     void destroy();
 
+    //英雄机子弹碰撞函数
+    void collide_with_enemyplane();
+
 
 };
 

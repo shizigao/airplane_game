@@ -4,6 +4,9 @@ HeroBulletPool::HeroBulletPool(QGraphicsScene* level_scene)
 {
     this->level_scene = level_scene;
 
+    herobullet_pool_list = new QList<HeroBullet*>();
+    herobullet_pool_queue = new QQueue<HeroBullet*>();
+
 }
 
 HeroBulletPool::HeroBulletPool(QGraphicsScene* level_scene, int init_size)

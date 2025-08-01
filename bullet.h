@@ -11,6 +11,8 @@ public:
 
     //子弹移动速度
     double speed = 0;
+    //子弹伤害
+    double damage = 0;
 };
 
 #endif // BULLET_H

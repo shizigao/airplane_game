@@ -1,7 +1,7 @@
 #include "enemyplane.h"
 EnemyPlane::EnemyPlane()
 {
-
+    weapon = new EnemyWeapon();
 }
 
 void EnemyPlane::init(int plane_kind)
@@ -27,6 +27,8 @@ void EnemyPlane::init1()
 {
     setPixmap(QPixmap(ENEMYPLANE1_PICTURE));
     speed = ENEMYPLANE1_SPEED;
+    health = ENEMYPLANE1_HEALTH;
+    weapon->init(1);
 }
 
 void EnemyPlane::init2()
@@ -90,8 +92,42 @@ void EnemyPlane::move4()
 
 }
 
+void EnemyPlane::weapon_shoot(EnemyBulletPool *enemybullet_pool, QGraphicsScene *level_scene)
+{
+    if (!weapon || weapon->weapon_timer->isActive())return;
+    EnemyBullet* enemybullet = enemybullet_pool->get_new_enemybullet();
+    enemybullet->init(weapon->weapon_kind, weapon);
+    enemybullet->setPos(pos().x() + pixmap().width() / 2.0 - 8, pos().y() + 18);
+    //重新计时
+    weapon->weapon_timer->start();
+}
+
 void EnemyPlane::destroy()
 {
+    weapon->weapon_timer->stop();
     status = 0;
     setVisible(false);
+}
+
+void EnemyPlane::collide_with_herobullet(HeroBullet *herobullet)
+{
+    switch(herobullet->bullet_kind){
+    case 1:
+        break;
+    case 2:
+        break;
+    case 3:
+        break;
+    case 4:
+        break;
+    }
+    health -= herobullet->damage;
+
+}
+
+void EnemyPlane::is_live()
+{
+    if (health <= 0){
+        destroy();
+    }
 }

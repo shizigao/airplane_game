@@ -36,7 +36,8 @@ SOURCES += \
     enemyweapon.cpp \
     enemyplane.cpp \
     herobulletpool.cpp \
-    enemyplanepool.cpp
+    enemyplanepool.cpp \
+    enemybulletpool.cpp
 
 HEADERS += \
         widget.h \
@@ -51,13 +52,11 @@ HEADERS += \
     enemyweapon.h \
     enemyplane.h \
     herobulletpool.h \
-    enemyplanepool.h
+    enemyplanepool.h \
+    enemybulletpool.h
 
 FORMS += \
         widget.ui
 
 RESOURCES += \
-    res.qrc \
-    res.qrc \
-    res.qrc \
     res.qrc

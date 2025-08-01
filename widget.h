@@ -18,6 +18,7 @@
 #include "enemyplane.h"
 #include "herobulletpool.h"
 #include "enemyplanepool.h"
+#include "enemybulletpool.h"
 #include "random"
 namespace Ui {
 class Widget;
@@ -72,6 +73,12 @@ public:
     void heroplane1_move();
     void heroplane2_move();
 
+    //碰撞检测
+    void collision_detection();//总碰撞检测函数
+    void collision_detection_herobullet_with_enemyplane();
+    void collision_detection_enemybullet_with_heroplane();
+    void collision_detection_heroplane_with_enemyplane();
+
 
 public:
     //视图
@@ -120,7 +127,7 @@ public:
     //敌机的对象池
     EnemyPlanePool* enemyplane_pool = nullptr;
     //敌机子弹的对象池
-
+    EnemyBulletPool* enemybullet_pool = nullptr;
 
 
 

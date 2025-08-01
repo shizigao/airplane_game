@@ -5,7 +5,8 @@
 EnemyPlanePool::EnemyPlanePool(QGraphicsScene *level_scene)
 {
     this->level_scene = level_scene;
-
+    enemyplane_pool_list = new QList<EnemyPlane*>();
+    enemyplane_pool_queue = new QQueue<EnemyPlane*>();
 }
 
 EnemyPlanePool::EnemyPlanePool(QGraphicsScene *level_scene, int init_size)

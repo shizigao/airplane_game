@@ -167,7 +167,7 @@ void Widget::load_pool()
 {
     herobullet_pool = new HeroBulletPool(level_scene, 10);//初始加载10个对象
     enemyplane_pool = new EnemyPlanePool(level_scene, 10);//初始加载10个对象
-
+    enemybullet_pool = new EnemyBulletPool(level_scene, 10);//初始加载10个对象
 }
 
 void Widget::load_heroplane1(int heroplane_kind)
@@ -190,8 +190,8 @@ void Widget::load_heroplane2(int heroplane_kind)
 void Widget::level1_update()
 {
     //场景的移动
-    level1_background1->moveBy(0.0, 1.0);
-    level1_background2->moveBy(0.0, 1.0);
+    level1_background1->moveBy(0.0, 0.5);
+    level1_background2->moveBy(0.0, 0.5);
     if (level1_background1->pos().y() >= 1152){
         level1_background1->setPos(0.0, 0.0);
     }
@@ -257,15 +257,35 @@ void Widget::general_update()
         }
     }
     
-    //敌机移动
+
     for (EnemyPlane* enemyplane : *(enemyplane_pool->enemyplane_pool_list)){
         if (enemyplane->status == 2){//敌机处于激活态，则移动
+            //发射子弹检测
+            enemyplane->weapon_shoot(enemybullet_pool, level_scene);
+            //敌机移动
             enemyplane->move();
+            //判断生命值是否小于0
+            enemyplane->is_live();
+
         }
         else if (enemyplane->status == 0){
             enemyplane_pool->return_enemyplane(enemyplane);
         }
     }
+
+    for (EnemyBullet* enemybullet : *(enemybullet_pool->enemybullet_pool_list)){
+        if (enemybullet->status == 2){
+            //子弹移动
+            enemybullet->move();
+        }
+        else if (enemybullet->status == 0){
+            enemybullet_pool->return_enemybullet(enemybullet);
+        }
+    }
+
+    //碰撞检测
+    collision_detection();
+
 }
 
 void Widget::turn_to_level1()
@@ -345,5 +365,43 @@ void Widget::heroplane1_move()
 
 void Widget::heroplane2_move()
 {
+
+}
+
+void Widget::collision_detection()
+{
+    collision_detection_enemybullet_with_heroplane();
+    collision_detection_herobullet_with_enemyplane();
+    collision_detection_heroplane_with_enemyplane();
+}
+
+void Widget::collision_detection_herobullet_with_enemyplane()
+{
+    //暴力枚举检测碰撞检测
+    for (HeroBullet* herobullet : *(herobullet_pool->herobullet_pool_list)){
+        if (herobullet->status == 2){
+            for (EnemyPlane* enemyplane : *(enemyplane_pool->enemyplane_pool_list)){
+                if (enemyplane->status == 2){
+                    if (herobullet->collidesWithItem(enemyplane)){
+                        //碰撞函数
+                        enemyplane->collide_with_herobullet(herobullet);
+                        herobullet->collide_with_enemyplane();
+                    }
+
+                }
+            }
+        }
+    }
+}
+
+void Widget::collision_detection_enemybullet_with_heroplane()
+{
+    //暴力枚举检测碰撞检测
+
+}
+
+void Widget::collision_detection_heroplane_with_enemyplane()
+{
+    //暴力枚举检测碰撞检测
 
 }

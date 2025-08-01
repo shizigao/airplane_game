@@ -2,7 +2,9 @@
 #define ENEMYPLANE_H
 
 #include "plane.h"
-
+#include "enemyweapon.h"
+#include "enemybulletpool.h"
+#include "herobullet.h"
 class EnemyPlane:public Plane
 {
 public:
@@ -21,11 +23,26 @@ public:
     void move3();
     void move4();
 
+    //发射子弹
+    void weapon_shoot(EnemyBulletPool* enemybullet_pool, QGraphicsScene* level_scene);
+
     //销毁函数
     void destroy();
+
+    //碰撞函数
+    void collide_with_herobullet(HeroBullet* herobullet);
+
+    //判断生命值是否小于零0
+    void is_live();
+
 public:
     //种类
     int plane_kind = 1;
+    //武器槽
+    EnemyWeapon* weapon = nullptr;
+
+
+
 };
 
 #endif // ENEMYPLANE_H
