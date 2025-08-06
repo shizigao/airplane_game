@@ -548,8 +548,11 @@ void Widget::collision_detection_heroplane_with_enemyplane()
             }
             //英雄机2
             if (heroplane2 && heroplane2->status == 2 && enemyplane->status == 2 && !heroplane2->shield_timer->isActive()){
-                heroplane2->collide_with_enemyplane(enemyplane);
-                enemyplane->collide_with_heroplane(heroplane2);
+                if (heroplane2->collidesWithItem(enemyplane)){
+                    heroplane2->collide_with_enemyplane(enemyplane);
+                    enemyplane->collide_with_heroplane(heroplane2);
+                }
+                
             }
         }
     }

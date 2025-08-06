@@ -24,6 +24,7 @@ void EnemyBullet::init(int bullet_kind, EnemyWeapon *enemyweapon)
     }
     //把武器的数值赋值给子弹
     speed = enemyweapon->speed;
+    damage = enemyweapon->damage;
 }
 
 void EnemyBullet::init1()
@@ -96,4 +97,19 @@ void EnemyBullet::destroy()
 {
     status = 0;
     setVisible(false);//设置图片不可见
+}
+
+void EnemyBullet::collide_with_heroplane()
+{
+    switch(bullet_kind){
+    case 1:
+        destroy();
+        break;
+    case 2:
+        break;
+    case 3:
+        break;
+    case 4:
+        break;
+    }
 }

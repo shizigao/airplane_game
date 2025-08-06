@@ -28,7 +28,7 @@ void EnemyWeapon::init1()
 {
     interval = ENEMYWEAPON1_INTERVAL;
     speed = ENEMYWEAPON1_SPEED;
-
+    damage = ENEMYWEAPON1_DAMAGE;
     weapon_timer->setInterval(interval);
     weapon_timer->setSingleShot(true);
     weapon_timer->start();

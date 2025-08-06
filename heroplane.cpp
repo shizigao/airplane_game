@@ -6,7 +6,19 @@ HeroPlane::HeroPlane()
 
 void HeroPlane::init(int heroplane_kind)
 {
-    this->heroplane_kind = heroplane_kind;
+    this->plane_kind = heroplane_kind;
+    //护盾
+    shield = new QGraphicsPixmapItem();
+    shield->setParentItem(this);
+    shield->setPixmap(QPixmap(SHIELD_PICTURE));
+    shield->setScale(0.3);
+    shield->setOpacity(0.5);
+    shield->setPos(-4, -12);
+    shield->setVisible(false);
+    shield_timer = new QTimer();
+    shield_timer->setSingleShot(true);
+
+    status = 2;//状态设置为2
     switch(heroplane_kind){
     case 1:
         init_1();
@@ -20,6 +32,9 @@ void HeroPlane::init(int heroplane_kind)
 void HeroPlane::init_1()
 {
     speed = HEROPLANE1_SPEED;
+    max_health = HEROPLANE1_HEALTH;
+    health = max_health;
+    damage = HEROPLANE1_DAMAGE;
     setPixmap(QPixmap(HEROPLANE1_PICTURE));
     weapon1 = new HeroWeapon();
     weapon1->init(1);
@@ -60,4 +75,40 @@ void HeroPlane::weapon3_shoot(HeroBulletPool *herobullet_pool, QGraphicsScene *l
     herobullet->setPos(pos().x(), pos().y());
     //重新计时
     weapon3->weapon_timer->start();
+}
+
+void HeroPlane::collide_with_enemybullet(EnemyBullet *enemybullet)
+{
+    switch(enemybullet->bullet_kind){
+    case 1:
+        break;
+    case 2:
+        break;
+    case 3:
+        break;
+    case 4:
+        break;
+    }
+    if (shield_timer->isActive())return;
+    health -= enemybullet->damage;
+    shield_timer->setInterval(SHIELD_PERIOD_1);
+    shield_timer->start();
+}
+
+void HeroPlane::collide_with_enemyplane(EnemyPlane *enemyplane)
+{
+    switch(enemyplane->plane_kind){
+    case 1:
+        break;
+    case 2:
+        break;
+    case 3:
+        break;
+    case 4:
+        break;
+    }
+    if (shield_timer->isActive())return;
+    health -= enemyplane->damage;
+    shield_timer->setInterval(SHIELD_PERIOD_1);
+    shield_timer->start();
 }

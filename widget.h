@@ -20,6 +20,8 @@
 #include "enemyplanepool.h"
 #include "enemybulletpool.h"
 #include "random"
+#include "QProgressBar"
+#include "QLineEdit"
 namespace Ui {
 class Widget;
 }
@@ -100,6 +102,13 @@ public:
     QGraphicsPixmapItem* level3_background1 = nullptr, *level3_background2 = nullptr;
     QGraphicsPixmapItem* level4_background1 = nullptr, *level4_background2 = nullptr;
     QGraphicsPixmapItem* level5_background1 = nullptr, *level5_background2 = nullptr;
+
+    //关卡UI
+    //血量进度条
+    QProgressBar* heroplane1_health_bar = nullptr, *heroplane2_health_bar = nullptr;
+    //血量值文本框
+    QLineEdit *heroplane1_health_text = nullptr, *heroplane2_health_text = nullptr;
+
 
 
 

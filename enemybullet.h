@@ -24,6 +24,8 @@ public:
     void move4();
     //子弹的销毁函数
     void destroy();
+    //与英雄机发生碰撞
+    void collide_with_heroplane();
 
 };
 

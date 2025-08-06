@@ -51,6 +51,9 @@
 //敌机子弹图片
 #define ENEMYBULLET1_PICTURE ":/resource/bullet_1.png" //第一种敌机子弹的图片
 
+//护盾图片
+#define SHIELD_PICTURE ":/resource/shield.png"
+
 //游戏周期
 #define GAME_PERIOD 10 //游戏周期：10ms
 
@@ -60,10 +63,12 @@
 
 //英雄机的属性
 //第一种英雄机
-#define HEROPLANE1_SPEED 5
+#define HEROPLANE1_SPEED 5 //移动速度
+#define HEROPLANE1_HEALTH 100 //最大生命值
+#define HEROPLANE1_DAMAGE 50 //碰撞伤害
 
 //第二种英雄机
-#define HEROPLANE2_SPEED 3
+#define HEROPLANE2_SPEED 3 //移动速度
 
 //英雄机第一种武器的属性
 #define HEROWEAPON1_INTERVAL 200 //发射间隔200ms
@@ -75,9 +80,14 @@
 //第一种敌机
 #define ENEMYPLANE1_SPEED 1 //移动速度
 #define ENEMYPLANE1_HEALTH 100 //敌机的生命
+#define ENEMYPLANE1_DAMAGE 10 //碰撞伤害
 
 //第一种敌机武器的属性
 #define ENEMYWEAPON1_INTERVAL 2000 //发射间隔2000ms
 #define ENEMYWEAPON1_SPEED 10 //发射出的子弹的移动速度
+#define ENEMYWEAPON1_DAMAGE 10 //子弹伤害
+
+//受伤后护盾的持续时间
+#define SHIELD_PERIOD_1 1000 //1000ms
 
 #endif // CONFIG_H

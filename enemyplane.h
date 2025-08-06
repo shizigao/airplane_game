@@ -5,6 +5,8 @@
 #include "enemyweapon.h"
 #include "enemybulletpool.h"
 #include "herobullet.h"
+class HeroPlane;
+
 class EnemyPlane:public Plane
 {
 public:
@@ -29,8 +31,10 @@ public:
     //销毁函数
     void destroy();
 
-    //碰撞函数
+    //与英雄机子弹发生碰撞
     void collide_with_herobullet(HeroBullet* herobullet);
+    //与英雄机发生碰撞
+    void collide_with_heroplane(HeroPlane* heroplane);
 
     //判断生命值是否小于零0
     void is_live();

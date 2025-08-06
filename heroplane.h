@@ -4,13 +4,14 @@
 #include "heroweapon.h"
 #include "herobullet.h"
 #include "herobulletpool.h"
-
+#include "enemybullet.h"
+#include "enemyplane.h"
 class HeroPlane:public Plane
 {
 public:
     HeroPlane();
     //根据不同的英雄机种类初始化英雄机
-    void init(int heroplane_kind);
+    void init(int plane_kind);
     void init_1();
     void init_2();
 
@@ -20,11 +21,20 @@ public:
     void weapon2_shoot(HeroBulletPool* herobullet_pool, QGraphicsScene* level_scene);
     //发射第三个武器的子弹
     void weapon3_shoot(HeroBulletPool* herobullet_pool, QGraphicsScene* level_scene);
+
+    //与敌机子弹发生碰撞
+    void collide_with_enemybullet(EnemyBullet* enemybullet);
+    //与敌机发生碰撞
+    void collide_with_enemyplane(EnemyPlane* enemyplane);
 public:
     //英雄机的种类
-    int heroplane_kind = 1;
+    int plane_kind = 1;
     //英雄机的三个武器槽
     HeroWeapon *weapon1 = nullptr, *weapon2 = nullptr, *weapon3 = nullptr;
+    //护盾对象
+    QGraphicsPixmapItem* shield = nullptr;
+    //护盾的计时器
+    QTimer* shield_timer = nullptr;
 
 
 };

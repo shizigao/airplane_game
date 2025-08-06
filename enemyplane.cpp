@@ -1,4 +1,5 @@
 #include "enemyplane.h"
+#include "heroplane.h"
 EnemyPlane::EnemyPlane()
 {
     weapon = new EnemyWeapon();
@@ -28,6 +29,7 @@ void EnemyPlane::init1()
     setPixmap(QPixmap(ENEMYPLANE1_PICTURE));
     speed = ENEMYPLANE1_SPEED;
     health = ENEMYPLANE1_HEALTH;
+    damage = ENEMYPLANE1_DAMAGE;
     weapon->init(1);
 }
 
@@ -122,6 +124,23 @@ void EnemyPlane::collide_with_herobullet(HeroBullet *herobullet)
         break;
     }
     health -= herobullet->damage;
+
+}
+
+void EnemyPlane::collide_with_heroplane(HeroPlane *heroplane)
+{
+    switch(heroplane->plane_kind){
+    case 1:
+        break;
+    case 2:
+        break;
+    case 3:
+        break;
+    case 4:
+        break;
+    }
+
+    health -= heroplane->damage;
 
 }
 
