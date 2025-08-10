@@ -2,6 +2,8 @@
 #define HEROBULLET_H
 #include "bullet.h"
 #include "heroweapon.h"
+#include "enemyplanepool.h"
+class EnemyPlane;
 class HeroBullet: public Bullet
 {
 public:
@@ -16,16 +18,16 @@ public:
     //英雄机子弹的种类
     int bullet_kind = 1;
     //移动函数
-    void move();
+    void move(EnemyPlanePool* enemyplane_pool);
     void move1();
     void move2();
-    void move3();
+    void move3(EnemyPlanePool* enemyplane_pool);
     void move4();
     //子弹的销毁函数
     void destroy();
 
     //英雄机子弹碰撞函数
-    void collide_with_enemyplane();
+    void collide_with_enemyplane(EnemyPlane* enemyplane);
 
 
 };

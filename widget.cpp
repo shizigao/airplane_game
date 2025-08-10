@@ -132,9 +132,35 @@ void Widget::load_menu()
     menu_scene->addWidget(menu_record_button);
     menu_scene->addWidget(menu_settings_button);
     menu_scene->addWidget(menu_introductionbutton);
+
+    //分数板
+    high_score_text = new QLineEdit();
+    high_score_text->setReadOnly(true);
+    high_score_text->setFixedSize(200, 50);
+    high_score_text->move(300, 50); // 调整位置
+    high_score_text->setStyleSheet(R"(
+        QLineEdit:read-only {
+            font-family: "Arial Black";
+            font-size: 18px;
+            font-weight: bold;
+            background-color: transparent;
+            border: 2px solid #FF0B0B;
+            color: #FF0B0B;
+        }
+    )");
+    menu_scene->addWidget(high_score_text);
+    high_score_text->setVisible(false); // 初始隐藏
+
     //信号槽
+    //转到第一关
     connect(menu_one_player_level_button, QPushButton::clicked, this, [=](){
         turn_to_level1();
+    });
+    //显示最高分
+    connect(menu_record_button, QPushButton::clicked, this, [=](){
+        int highScore = load_score();
+        high_score_text->setText(QString("最高分: %1").arg(highScore));
+        high_score_text->setVisible(true);
     });
 
 }
@@ -244,6 +270,69 @@ void Widget::load_level()
                                       )");
 
     level_scene->addWidget(heroplane2_health_text);
+
+    //加载分数板
+    score_text = new QLineEdit();
+    score_text->setText("得分：0");
+    score_text->setReadOnly(true);
+    score_text->move(GAME_WIDTH - 160, 0);
+    score_text->setStyleSheet(R"(
+                                 QLineEdit:read-only {
+                                     font-family: "Arial Black";  /* 字体家族 */
+                                     font-size: 18px;            /* 字体大小 */
+                                 font-weight: bold;
+                                     background-color: transparent;
+                                     border: none;  /* 可选：去掉边框 */
+                                     color: #FF0B0B;   /* 文字颜色 */
+                                 }
+                             )");
+    level_scene->addWidget(score_text);
+
+    //加载经验条
+    //英雄机1的经验条
+    heroplane1_experience_bar = new QProgressBar();
+    heroplane1_experience_bar->setFixedSize(40, 20);
+    heroplane1_experience_bar->move(GAME_WIDTH - 40, GAME_HEIGHT - 180);
+    heroplane1_experience_bar->setTextVisible(false);
+    heroplane1_experience_bar->setStyleSheet(R"(
+                                             QProgressBar {
+                                                 border: 3px solid #333;          /* 深色边框 */
+                                                 border-radius: 4px;              /* 轻微圆角 */
+                                                 background-color: #1a1a1a;       /* 深色背景 */
+                                                 text-align: center;              /* 进度文字居中 */
+                                                 color: #ffffff;                  /* 文字颜色为白色 */
+                                                 height: 30px;                    /* 进度条高度 */
+                                             }
+                                             QProgressBar::chunk {
+                                                 background-color: #4CAF50;       /* 绿色进度块 */
+                                                 border-radius: 2px;              /* 进度块轻微圆角 */
+                                                 margin: 1px;                     /* 进度块与边框的间距 */
+                                             }
+                                         )");
+    level_scene->addWidget(heroplane1_experience_bar);
+    //英雄机2的经验条
+    heroplane2_experience_bar = new QProgressBar();
+    heroplane2_experience_bar->setFixedSize(40, 20);
+    heroplane2_experience_bar->move(0, GAME_HEIGHT - 180);
+    heroplane2_experience_bar->setTextVisible(false);
+    heroplane2_experience_bar->setStyleSheet(R"(
+                                             QProgressBar {
+                                                 border: 3px solid #333;          /* 深色边框 */
+                                                 border-radius: 4px;              /* 轻微圆角 */
+                                                 background-color: #1a1a1a;       /* 深色背景 */
+                                                 text-align: center;              /* 进度文字居中 */
+                                                 color: #ffffff;                  /* 文字颜色为白色 */
+                                                 height: 30px;                    /* 进度条高度 */
+                                             }
+                                             QProgressBar::chunk {
+                                                 background-color: #4CAF50;       /* 绿色进度块 */
+                                                 border-radius: 2px;              /* 进度块轻微圆角 */
+                                                 margin: 1px;                     /* 进度块与边框的间距 */
+                                             }
+                                         )");
+
+
+    level_scene->addWidget(heroplane2_experience_bar);
 
 
 }
@@ -355,12 +444,18 @@ void Widget::general_update()
         //更新英雄机血量对应的UI
         heroplane1_health_bar->setValue(heroplane1->get_health_rate());
         heroplane1_health_text->setText(QString::number(heroplane1->health, 'f', 0));
+        //更新英雄机经验条
+        heroplane1_experience_bar->setValue(heroplane1->get_experience_rate());
         //护盾
         if (heroplane1->shield_timer->isActive()){
             heroplane1->shield->setVisible(true);
         }
         else {
             heroplane1->shield->setVisible(false);
+        }
+        //判断是否升级
+        if (heroplane1->experience >= heroplane1->next_level_experience){
+            heroplane1->upgrade(this);
         }
     }
     if (heroplane2){
@@ -379,6 +474,8 @@ void Widget::general_update()
         //更新英雄机血量对应的UI
         heroplane2_health_bar->setValue(heroplane2->get_health_rate());
         heroplane2_health_text->setText(QString::number(heroplane2->health, 'f', 0));
+        //更新英雄机经验条
+        heroplane2_experience_bar->setValue(heroplane2->get_experience_rate());
         //护盾
         if (heroplane2->shield_timer->isActive()){
             heroplane2->shield->setVisible(true);
@@ -386,12 +483,16 @@ void Widget::general_update()
         else {
             heroplane2->shield->setVisible(false);
         }
+        //判断是否升级
+        if (heroplane2->experience >= heroplane2->next_level_experience){
+            heroplane2->upgrade(this);
+        }
     }
 
     //英雄机子弹的移动
     for (HeroBullet* herobullet : *(herobullet_pool->herobullet_pool_list)){
         if (herobullet->status == 2){//子弹处于激活态，则移动
-            herobullet->move();
+            herobullet->move(enemyplane_pool);
         }
         else if (herobullet->status == 0){//子弹失效，则加入子弹池等待队列
             herobullet_pool->return_herobullet(herobullet);
@@ -410,6 +511,16 @@ void Widget::general_update()
 
         }
         else if (enemyplane->status == 0){
+
+            score += enemyplane->score;
+
+            if(heroplane1){
+                heroplane1->experience += enemyplane->experience;
+            }
+            if(heroplane2){
+                heroplane2->experience += enemyplane->experience;
+            }
+
             enemyplane_pool->return_enemyplane(enemyplane);
         }
     }
@@ -435,8 +546,14 @@ void Widget::general_update()
         status = 0;
     }
     if (status == 0){
+        save_score();
         game_end();
     }
+
+    //分数板更新
+    score_text->setText("分数：" + QString::number(score));
+
+
 
 }
 
@@ -448,6 +565,7 @@ void Widget::turn_to_menu()
 void Widget::turn_to_level1()
 {
     view->setScene(level_scene);
+
     //选择英雄机
     load_heroplane1(1);
 
@@ -560,7 +678,7 @@ void Widget::collision_detection_herobullet_with_enemyplane()
                     if (herobullet->collidesWithItem(enemyplane)){
                         //碰撞函数
                         enemyplane->collide_with_herobullet(herobullet);
-                        herobullet->collide_with_enemyplane();
+                        herobullet->collide_with_enemyplane(enemyplane);
                     }
 
                 }
@@ -669,4 +787,41 @@ void Widget::delete_level()
     //切断game_timer与update的连接
     disconnect(game_timer, nullptr, nullptr, nullptr);
 
+}
+
+void Widget::save_score()
+{
+    QFile file("game_scores.txt");
+    // 尝试打开文件，以读写方式，如果不存在则创建
+    if (file.open(QIODevice::ReadWrite | QIODevice::Text)) {
+        QTextStream in(&file);
+        int highScore = 0;
+        // 读取当前最高分
+        if (!in.atEnd()) {
+            in >> highScore;
+        }
+        // 如果当前分数高于最高分，则更新
+        if (score > highScore) {
+            highScore = score;
+            // 回到文件开头，覆盖写入新的最高分
+            file.seek(0);
+            QTextStream out(&file);
+            out << highScore;
+        }
+        file.close();
+    }
+}
+
+int Widget::load_score()
+{
+    QFile file("game_scores.txt");
+    if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        QTextStream in(&file);
+        int highScore = 0;
+        in >> highScore;
+        file.close();
+        return highScore;
+    }
+    // 如果文件不存在，返回0
+    return 0;
 }

@@ -29,6 +29,9 @@ void HeroWeapon::init(int weapon_kind)
         init4();
         break;
     }
+    weapon_timer->setInterval(interval);
+    weapon_timer->setSingleShot(true);
+    weapon_timer->start();
 }
 
 void HeroWeapon::init1()
@@ -37,23 +40,29 @@ void HeroWeapon::init1()
     speed = HEROWEAPON1_SPEED;
     damage = HEROWEAPON1_DAMAGE;
 
-    weapon_timer->setInterval(interval);
-    weapon_timer->setSingleShot(true);
-    weapon_timer->start();
+
 
 }
 
 void HeroWeapon::init2()
 {
+    interval = HEROWEAPON2_INTERVAL;
+    speed = HEROWEAPON2_SPEED;
+    damage = HEROWEAPON2_DAMAGE;
 
 }
 
 void HeroWeapon::init3()
 {
-
+    interval = HEROWEAPON3_INTERVAL;
+    speed = HEROWEAPON3_SPEED;
+    damage = HEROWEAPON3_DAMAGE;
 }
 
 void HeroWeapon::init4()
 {
-
+    interval = HEROWEAPON4_INTERVAL;
+    speed = HEROWEAPON4_SPEED;
+    damage = HEROWEAPON4_DAMAGE;
 }
+

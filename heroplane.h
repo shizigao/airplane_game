@@ -27,6 +27,10 @@ public:
     void collide_with_enemybullet(EnemyBullet* enemybullet);
     //与敌机发生碰撞
     void collide_with_enemyplane(EnemyPlane* enemyplane);
+    //升级函数
+    void upgrade(QWidget* widget);
+    //获取经验值比率
+    int get_experience_rate();
 public:
     //英雄机的种类
     int plane_kind = 1;
@@ -36,6 +40,14 @@ public:
     QGraphicsPixmapItem* shield = nullptr;
     //护盾的计时器
     QTimer* shield_timer = nullptr;
+    //升级的图片
+    QGraphicsPixmapItem* upgrade_picture;
+    //当前经验值
+    int experience = 0;
+    //下一次升级所需经验值
+    int next_level_experience = UPGRADE_EXPERIENCE;
+    //当前等级
+    int level = 1;
 
 
 };

@@ -4,7 +4,7 @@
 #include "plane.h"
 #include "enemyweapon.h"
 #include "enemybulletpool.h"
-#include "herobullet.h"
+class HeroBullet;
 class HeroPlane;
 
 class EnemyPlane:public Plane
@@ -44,6 +44,10 @@ public:
     int plane_kind = 1;
     //武器槽
     EnemyWeapon* weapon = nullptr;
+    //分数
+    int score = 0;
+    //经验值
+    int experience = 0;
 
 
 

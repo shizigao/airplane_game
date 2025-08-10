@@ -49,7 +49,11 @@
 #define HEROPLANE2_PICTURE ":/resource/hero2.png" //第二种英雄机的图片
 
 //英雄机子弹图片
-#define HEROBULLET_PICTURE1 ":/resource/bullet_10.png" //第一种英雄机的子弹
+#define HEROBULLET_PICTURE1 ":/resource/bullet_10.png" //第一种英雄机武器的子弹
+#define HEROBULLET_PICTURE2 ":/resource/bullet_13.png" //第二种英雄机武器的子弹
+#define HEROBULLET_PICTURE3 ":/resource/bullet_8.png" //第三种英雄机武器的子弹
+#define HEROBULLET_PICTURE4 ":/resource/hero_bullet.png" //第四种英雄机武器的子弹
+
 
 
 //敌机的图片
@@ -60,6 +64,9 @@
 
 //护盾图片
 #define SHIELD_PICTURE ":/resource/shield.png"
+
+//升级图片
+#define UPGRADE_PICTURE ":/resource/upgrade.png"
 
 //游戏周期
 #define GAME_PERIOD 10 //游戏周期：10ms
@@ -78,9 +85,24 @@
 #define HEROPLANE2_SPEED 3 //移动速度
 
 //英雄机第一种武器的属性
-#define HEROWEAPON1_INTERVAL 200 //发射间隔200ms
+#define HEROWEAPON1_INTERVAL 200 //发射间隔
 #define HEROWEAPON1_SPEED 20 //发射出的子弹的移动速度
 #define HEROWEAPON1_DAMAGE 20 //子弹的伤害
+
+//英雄机第二种武器的属性
+#define HEROWEAPON2_INTERVAL 300 //发射间隔
+#define HEROWEAPON2_SPEED 25 //发射出的子弹的移动速度
+#define HEROWEAPON2_DAMAGE 25 //子弹的伤害
+
+//英雄机第三种武器的属性
+#define HEROWEAPON3_INTERVAL 1200 //发射间隔
+#define HEROWEAPON3_SPEED 10 //发射出的子弹的移动速度
+#define HEROWEAPON3_DAMAGE 80 //子弹的伤害
+
+//英雄机第四种武器的属性
+#define HEROWEAPON4_INTERVAL 1000 //发射间隔
+#define HEROWEAPON4_SPEED 10 //发射出的子弹的移动速度
+#define HEROWEAPON4_DAMAGE 120 //子弹的伤害
 
 
 //敌机
@@ -88,6 +110,9 @@
 #define ENEMYPLANE1_SPEED 1 //移动速度
 #define ENEMYPLANE1_HEALTH 100 //敌机的生命
 #define ENEMYPLANE1_DAMAGE 10 //碰撞伤害
+#define ENEMYPLANE1_SCORE 100 //分数
+#define ENEMYPLANE1_EXPERIENCE 100 //经验值
+
 
 //第一种敌机武器的属性
 #define ENEMYWEAPON1_INTERVAL 2000 //发射间隔2000ms
@@ -96,5 +121,12 @@
 
 //受伤后护盾的持续时间
 #define SHIELD_PERIOD_1 1000 //1000ms
+
+//第一次升级所需经验值
+#define UPGRADE_EXPERIENCE 400
+//升级所需经验值的增长幅度
+#define UPGRADE_EXPERIENCE_INCREASE_RATE 1.4
+//升级提升属性的比率
+#define UPGRADE_VALUE_RATE 1.2
 
 #endif // CONFIG_H

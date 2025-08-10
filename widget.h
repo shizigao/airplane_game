@@ -93,6 +93,10 @@ public:
     void game_end();
     void delete_level();
 
+    //存储分数
+    void save_score();
+    //读取本地最高分
+    int load_score();
 
 
 
@@ -162,6 +166,16 @@ public:
     //游戏状态
     int status = 2;//0表示游戏结束 1表示游戏暂停 2表示游戏正常运行
 
+    //分数
+    int score = 0;
+
+    //游戏中的分数板
+    QLineEdit* score_text = nullptr;
+    //显示游戏最高分的分数板
+    QLineEdit* high_score_text = nullptr;
+
+    //经验条
+    QProgressBar* heroplane1_experience_bar = nullptr, *heroplane2_experience_bar = nullptr;
 
 
 

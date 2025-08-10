@@ -24,8 +24,18 @@ void HeroPlane::init(int heroplane_kind)
     shield->setOpacity(0.5);
     shield->setPos(-4, -12);
     shield->setVisible(false);
+
     shield_timer = new QTimer();
     shield_timer->setSingleShot(true);
+
+    //升级图片
+    upgrade_picture = new QGraphicsPixmapItem();
+    upgrade_picture->setParentItem(this);
+    upgrade_picture->setPixmap(QPixmap(UPGRADE_PICTURE));
+    upgrade_picture->setPos(0, -40);
+    upgrade_picture->setVisible(false);
+
+
 
     status = 2;//状态设置为2
     switch(heroplane_kind){
@@ -46,7 +56,7 @@ void HeroPlane::init_1()
     damage = HEROPLANE1_DAMAGE;
     setPixmap(QPixmap(HEROPLANE1_PICTURE));
     weapon1 = new HeroWeapon();
-    weapon1->init(1);
+    weapon1->init(4);
 }
 
 void HeroPlane::init_2()
@@ -120,4 +130,32 @@ void HeroPlane::collide_with_enemyplane(EnemyPlane *enemyplane)
     health -= enemyplane->damage;
     shield_timer->setInterval(SHIELD_PERIOD_1);
     shield_timer->start();
+}
+
+void HeroPlane::upgrade(QWidget* widget)
+{
+    //显示升级画面
+    QTimer* timer = new QTimer();
+    timer->setSingleShot(true);
+    widget->connect(timer, QTimer::timeout, widget, [=](){
+        upgrade_picture->setVisible(false);
+        widget->disconnect(timer, nullptr, nullptr, nullptr);
+        delete timer;
+    });
+    upgrade_picture->setVisible(true);
+    timer->start(1000);//显示1000ms
+
+    experience = 0;
+    next_level_experience *= UPGRADE_EXPERIENCE_INCREASE_RATE;//每升一级，所需经验值增长
+
+    //属性提升
+    max_health *= UPGRADE_VALUE_RATE;
+    damage *= UPGRADE_VALUE_RATE;
+    health = max_health;
+
+}
+
+int HeroPlane::get_experience_rate()
+{
+    return experience / (double)next_level_experience * 100;
 }

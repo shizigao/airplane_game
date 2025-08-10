@@ -1,5 +1,6 @@
 #include "enemyplane.h"
 #include "heroplane.h"
+#include "herobullet.h"
 EnemyPlane::EnemyPlane()
 {
     weapon = new EnemyWeapon();
@@ -30,6 +31,8 @@ void EnemyPlane::init1()
     speed = ENEMYPLANE1_SPEED;
     health = ENEMYPLANE1_HEALTH;
     damage = ENEMYPLANE1_DAMAGE;
+    score = ENEMYPLANE1_SCORE;
+    experience = ENEMYPLANE1_EXPERIENCE;
     weapon->init(1);
 }
 
