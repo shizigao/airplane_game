@@ -33,6 +33,8 @@ void Widget::load_resources()
     load_startgame();
     load_menu();
     load_level();
+    load_pause();
+    load_end();
     load_pool();
 }
 
@@ -261,6 +263,34 @@ void Widget::load_pool()
     enemybullet_pool = new EnemyBulletPool(level_scene, 10);//初始加载10个对象
 }
 
+void Widget::load_pause()
+{
+    pause_picture = new QGraphicsPixmapItem();
+    pause_picture->setPixmap(QPixmap(PAUSE_PICTURE));
+    pause_picture->setPos(GAME_WIDTH / 2 - pause_picture->pixmap().width() / 2, GAME_HEIGHT / 2 - pause_picture->pixmap().height() / 2);
+    pause_picture->setZValue(91); //层级设置比pause_background要高
+    pause_picture->setVisible(false);
+    level_scene->addItem(pause_picture);
+
+    pause_background = new QGraphicsRectItem();
+    pause_background->setRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+    pause_background->setBrush(QColor(0, 0, 0, 128)); // 黑色半透明（alpha=128，0-255）
+    pause_background->setZValue(90); // 层级设为次顶层（高于游戏元素）
+    pause_background->setVisible(false); // 默认隐藏
+    level_scene->addItem(pause_background);
+}
+
+void Widget::load_end()
+{
+    end_picture = new QGraphicsPixmapItem();
+    end_picture->setPixmap(QPixmap(END_PICTURE));
+    end_picture->setPos(GAME_WIDTH / 2 - end_picture->pixmap().width() / 2, GAME_HEIGHT / 2 - end_picture->pixmap().height() / 2);
+    end_picture->setZValue(91); //层级设置比pause_background要高
+    end_picture->setVisible(false);
+    level_scene->addItem(end_picture);
+
+}
+
 void Widget::load_heroplane1(int heroplane_kind)
 {
     heroplane1 = new HeroPlane();
@@ -397,8 +427,22 @@ void Widget::general_update()
     //碰撞检测
     collision_detection();
 
+    //判断英雄机生命是否小于零（游戏结束判断）
+    if (heroplane1 && heroplane1->health <= 0){
+        status = 0;
+    }
+    else if (heroplane2 && heroplane2->health <= 0){
+        status = 0;
+    }
+    if (status == 0){
+        game_end();
+    }
 
+}
 
+void Widget::turn_to_menu()
+{
+    view->setScene(menu_scene);
 }
 
 void Widget::turn_to_level1()
@@ -406,6 +450,12 @@ void Widget::turn_to_level1()
     view->setScene(level_scene);
     //选择英雄机
     load_heroplane1(1);
+
+
+    status = 2;
+    pause_background->setVisible(false);\
+    end_picture->setVisible(false);
+
 
     connect(game_timer, QTimer::timeout, this, [=](){
         this->level1_update();
@@ -425,6 +475,14 @@ void Widget::keyPressEvent(QKeyEvent *event)
     case Qt::Key_J:
         heroplane1->weapon1->is_continuously_shooting = true;
         break;
+    case Qt::Key_P:
+        game_pause();
+        break;
+    case Qt::Key_R:
+        if (status == 0){
+            delete_level();
+            turn_to_menu();
+        }
     }
 }
 
@@ -548,9 +606,67 @@ void Widget::collision_detection_heroplane_with_enemyplane()
             }
             //英雄机2
             if (heroplane2 && heroplane2->status == 2 && enemyplane->status == 2 && !heroplane2->shield_timer->isActive()){
-                heroplane2->collide_with_enemyplane(enemyplane);
-                enemyplane->collide_with_heroplane(heroplane2);
+                if (heroplane2->collidesWithItem(enemyplane)){
+                    heroplane2->collide_with_enemyplane(enemyplane);
+                    enemyplane->collide_with_heroplane(heroplane2);
+                }
+
             }
         }
     }
+}
+
+void Widget::game_pause()
+{
+    if (status == 2){//如果游戏处于运行状态
+        status = 1;
+        pause_background->setVisible(true);
+        pause_picture->setVisible(true);
+        game_timer->stop();
+    }
+    else if (status == 1){//如果游戏处于暂停状态
+        status = 2;
+        pause_background->setVisible(false);
+        pause_picture->setVisible(false);
+        game_timer->start();
+    }
+}
+
+void Widget::game_end()
+{
+    //显示游戏结束的界面
+    end_picture->setVisible(true);
+    pause_background->setVisible(true);
+    game_timer->stop();
+}
+
+void Widget::delete_level()
+{
+    //重置对象池中的对象
+    for (EnemyPlane* enemyplane : *(enemyplane_pool->enemyplane_pool_list)){
+        enemyplane->destroy();
+        enemyplane_pool->return_enemyplane(enemyplane);
+    }
+    for (EnemyBullet* enemybullet : *(enemybullet_pool->enemybullet_pool_list)){
+        enemybullet->destroy();
+        enemybullet_pool->return_enemybullet(enemybullet);
+    }
+    for (HeroBullet* herobullet : *(herobullet_pool->herobullet_pool_list)){
+        herobullet->destroy();
+        herobullet_pool->return_herobullet(herobullet);
+    }
+
+    //销毁英雄机
+    if (heroplane1){
+        level_scene->removeItem(heroplane1);
+        delete heroplane1;
+    }
+    if (heroplane2){
+        level_scene->removeItem(heroplane2);
+        delete heroplane2;
+    }
+
+    //切断game_timer与update的连接
+    disconnect(game_timer, nullptr, nullptr, nullptr);
+
 }

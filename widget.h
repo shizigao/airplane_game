@@ -50,6 +50,10 @@ public:
     void load_timer();
     //加载对象池
     void load_pool();
+    //加载暂停界面
+    void load_pause();
+    //加载结束界面
+    void load_end();
     //英雄机的加载函数
     void load_heroplane1(int heroplane_kind);//加载玩家1的英雄机
     void load_heroplane2(int heroplane_kind);//加载玩家2的英雄机
@@ -64,7 +68,8 @@ public:
     //通用更新函数
     void general_update();
 
-    //转到关卡界面函数
+    //转到界面函数
+    void turn_to_menu();
     void turn_to_level1();
 
     //键盘输入函数
@@ -80,6 +85,15 @@ public:
     void collision_detection_herobullet_with_enemyplane();
     void collision_detection_enemybullet_with_heroplane();
     void collision_detection_heroplane_with_enemyplane();
+
+    //暂停游戏
+    void game_pause();
+
+    //游戏结束
+    void game_end();
+    void delete_level();
+
+
 
 
 public:
@@ -137,6 +151,16 @@ public:
     EnemyPlanePool* enemyplane_pool = nullptr;
     //敌机子弹的对象池
     EnemyBulletPool* enemybullet_pool = nullptr;
+
+    //暂停界面元素
+    QGraphicsPixmapItem* pause_picture = nullptr;
+    QGraphicsRectItem* pause_background = nullptr;
+
+    //结束游戏界面元素
+    QGraphicsPixmapItem* end_picture = nullptr;
+
+    //游戏状态
+    int status = 2;//0表示游戏结束 1表示游戏暂停 2表示游戏正常运行
 
 
 

@@ -6,6 +6,7 @@ class HeroWeapon:public Weapon
 {
 public:
     HeroWeapon();
+    ~HeroWeapon();
     //根据不同的武器种类进行不同的初始化
     void init(int weapon_kind);
     void init1();

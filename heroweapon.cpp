@@ -5,6 +5,12 @@ HeroWeapon::HeroWeapon()
 
 }
 
+HeroWeapon::~HeroWeapon()
+{
+    weapon_timer->stop();
+    delete weapon_timer;
+}
+
 void HeroWeapon::init(int weapon_kind)
 {
     this->weapon_kind = weapon_kind;

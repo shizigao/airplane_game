@@ -10,6 +10,7 @@ class HeroPlane:public Plane
 {
 public:
     HeroPlane();
+    ~HeroPlane();
     //根据不同的英雄机种类初始化英雄机
     void init(int plane_kind);
     void init_1();

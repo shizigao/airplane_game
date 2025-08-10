@@ -36,6 +36,13 @@
 #define LEVEL4_BACKGROUND ":/resource/img_bg_level_4.jpg" //第四关的背景
 #define LEVEL5_BACKGROUND ":/resource/img_bg_level_5.jpg" //第五关的背景
 
+//暂停界面
+#define PAUSE_PICTURE ":/resource/pause_picture.png"
+
+//结束界面
+#define END_PICTURE ":/resource/endbackground.png"
+
+
 
 //英雄机图片
 #define HEROPLANE1_PICTURE ":/resource/hero.png" //第一种英雄机的图片

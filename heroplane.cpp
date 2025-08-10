@@ -4,6 +4,15 @@ HeroPlane::HeroPlane()
 
 }
 
+HeroPlane::~HeroPlane()
+{
+    if (weapon1) delete weapon1;
+    if (weapon2) delete weapon2;
+    if (weapon3) delete weapon3;
+    shield_timer->stop();
+    delete shield_timer;
+}
+
 void HeroPlane::init(int heroplane_kind)
 {
     this->plane_kind = heroplane_kind;
